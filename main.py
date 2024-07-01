@@ -1,14 +1,12 @@
 import cryptocompare
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plotter
 import matplotlib.ticker as ticker
 import numpy as np
 import logging
-import pandas as pd
+import pandas
 import os
 import math
 
-from matplotlib.colors import LinearSegmentedColormap
-from dateutil.relativedelta import relativedelta
 from datetime import date, timedelta
 
 
@@ -29,8 +27,8 @@ def download_daily_btc_data():
         data_part = cryptocompare.get_historical_price_day('BTC', currency='USD', limit=2000, toTs=download_date)
         data += data_part
 
-    df = pd.DataFrame(data)
-    df['time'] = pd.to_datetime(df['time'], unit='s')
+    df = pandas.DataFrame(data)
+    df['time'] = pandas.to_datetime(df['time'], unit='s')
     df.set_index('time', inplace=True, drop=False)
 
     # Resampled to daily by default
@@ -45,20 +43,20 @@ def draw_pi_top_chart(data_frame):
     data_frame[str(slow) + '_MA'] = data_frame['close'].rolling(window=slow).mean() * 2
     data_frame[str(quick) + '_MA'] = data_frame['close'].rolling(window=quick).mean()
 
-    plt.style.use('ggplot')
-    plt.figure(figsize=(14, 7))
-    plt.plot(data_frame[str(slow) + '_MA'], label=str(slow) + '-day MA', linewidth=0.8)
-    plt.plot(data_frame[str(quick) + '_MA'], label=str(quick) + '-day MA', linewidth=0.8)
-    plt.plot(data_frame['close'], label='Bitcoin', linewidth=0.4)
-    plt.xlabel('Date')
-    plt.ylabel('Price (USD)')
-    plt.grid(False)
-    plt.legend()
+    plotter.style.use('ggplot')
+    plotter.figure(figsize=(14, 7))
+    plotter.plot(data_frame[str(slow) + '_MA'], label=str(slow) + '-day MA', linewidth=0.8)
+    plotter.plot(data_frame[str(quick) + '_MA'], label=str(quick) + '-day MA', linewidth=0.8)
+    plotter.plot(data_frame['close'], label='Bitcoin', linewidth=0.4)
+    plotter.xlabel('Date')
+    plotter.ylabel('Price (USD)')
+    plotter.grid(False)
+    plotter.legend()
 
-    ax = plt.gca()
+    ax = plotter.gca()
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-    plt.show()
+    plotter.show()
 
 
 def run():
@@ -71,10 +69,10 @@ def run():
     # Log data
     print('')
     print('Download complete. Logging BTC data..')
-    log_file = 'btc_data.log'
-    logging.basicConfig(filename=log_file, level=logging.INFO, filemode='w')
+    log_file_name = 'btc_data.log'
+    logging.basicConfig(filename=log_file_name, level=logging.INFO, filemode='w')
     logging.info(daily.to_string())
-    print('Log file saved at: ' + os.path.abspath(log_file))
+    print('Log file saved at: ' + os.path.abspath(log_file_name))
 
     # Draw
     draw_pi_top_chart(daily)
