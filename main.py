@@ -6,7 +6,6 @@ import pandas
 import numpy
 import os
 import math
-import dateutil
 
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
@@ -149,6 +148,7 @@ def draw_rsi_vs_halving(data_frame, block_window):
     halving_dates = pandas.to_datetime(halving_dates)
     halving_dates = pandas.DatetimeIndex(halving_dates)
 
+    # plot RSI
     norm = plt.Normalize(0, 50)
 
     for i in numpy.arange(1, len(data_frame)):
@@ -169,6 +169,7 @@ def draw_rsi_vs_halving(data_frame, block_window):
         plt.plot(x_values, y_values, color=color_value)
 
     plt.title('Monthly RSI vs Next Halving')
+    plt.legend()
 
     print('Drawing Monthly RSI vs Next Halving..')
 
