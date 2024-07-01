@@ -42,13 +42,13 @@ def draw_pi_top_chart(data_frame):
     data_frame[str(slow) + '_MA * 2'] = data_frame['close'].rolling(window=slow).mean() * 2
     data_frame[str(quick) + '_MA'] = data_frame['close'].rolling(window=quick).mean()
 
-    plotter.style.use('ggplot')
+    plotter.style.use('fast')
     plotter.figure(figsize=(14, 7))
     plotter.grid(False)
 
-    plotter.plot(data_frame[str(slow) + '_MA * 2'], label=str(slow) + '-day MA * 2', linewidth=0.8)
-    plotter.plot(data_frame[str(quick) + '_MA'], label=str(quick) + '-day MA', linewidth=0.8)
-    plotter.plot(data_frame['close'], label='BTC Price', linewidth=0.4)
+    plotter.plot(data_frame['close'], label='BTC Price', linewidth=0.3)
+    plotter.plot(data_frame[str(slow) + '_MA * 2'], label=str(slow) + '-day MA * 2', linewidth=0.9)
+    plotter.plot(data_frame[str(quick) + '_MA'], label=str(quick) + '-day MA', linewidth=0.9)
 
     axis = plotter.gca()
     axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
