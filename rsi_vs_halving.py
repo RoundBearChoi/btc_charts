@@ -5,6 +5,7 @@ import numpy
 from dateutil.relativedelta import relativedelta
 from matplotlib.colors import LinearSegmentedColormap
 
+
 def draw(data_frame, block_window):
     plt.figure(figsize=(12, 6))  # A new window
 
