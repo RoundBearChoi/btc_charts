@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import dateutil.relativedelta as rel
 import pandas
 import numpy
-
-from dateutil.relativedelta import relativedelta
-from matplotlib.colors import LinearSegmentedColormap
 
 
 def draw(data_frame, block_window):
@@ -40,11 +39,11 @@ def draw(data_frame, block_window):
 
         for halving_date in halving_dates:
             if x_values[1] < halving_date:
-                diff = relativedelta(halving_date, x_values[0])
+                diff = rel.relativedelta(halving_date, x_values[0])
                 months_left = diff.years * 12 + diff.months
                 break
 
-        cmap = LinearSegmentedColormap.from_list('my_cmap', ['lightgreen', 'red'])
+        cmap = colors.LinearSegmentedColormap.from_list('my_cmap', ['lightgreen', 'red'])
         color_value = cmap(norm(months_left))
 
         plt.plot(x_values, y_values, color=color_value)
