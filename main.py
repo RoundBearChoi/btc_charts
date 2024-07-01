@@ -45,7 +45,7 @@ def download_daily_btc_data(total_years):
 
 
 def draw_pi_top_chart(data_frame, block_window):
-    plt.figure(figsize=(14, 7))  # A new window
+    plt.figure(figsize=(12, 6))  # A new window
 
     plt.style.use('fast')
     plt.grid(False)
@@ -72,13 +72,26 @@ def draw_pi_top_chart(data_frame, block_window):
     plt.show(block=block_window)
 
 
-def another_graph(data_frame, block_window):
-    plt.figure(figsize=(14, 7))  # A new window
+def draw_moving_average(data_frame, weeks, block_window):
+    plt.figure(figsize=(12, 6))  # A new window
 
-    plt.style.use('fast')
+    plt.style.use('ggplot')
     plt.grid(False)
 
-    plt.plot(data_frame['close'], label='BTC Price', linewidth=0.3)
+    data_frame['moving_avg'] = data_frame['close'].rolling(window=7 * weeks).mean()
+
+    plt.plot(data_frame['moving_avg'], label=f'{weeks}-Week Moving Average', linewidth=1)
+    plt.plot(data_frame['close'], label='Bitcoin Price', linewidth=1)
+    plt.title(str(weeks) + '-Week Moving Average')
+
+    axis = plt.gca()
+    axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+
+    plt.ylabel('Price (USD)')
+    plt.legend()
+
+    print('')
+    print('Drawing Moving Average Chart (Pi Bottom)..')
 
     plt.show(block=block_window)
 
@@ -100,7 +113,7 @@ def run():
 
     # Draw graphs
     draw_pi_top_chart(daily, False)
-    another_graph(daily, True)
+    draw_moving_average(daily, 140, True)
 
 
 if __name__ == '__main__':
