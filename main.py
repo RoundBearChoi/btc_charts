@@ -44,7 +44,7 @@ def download_daily_btc_data(total_years):
     return df
 
 
-def draw_pi_top_chart(data_frame, block_window):
+def draw_pi_top(data_frame, block_window):
     plt.figure(figsize=(12, 6))  # A new window
 
     plt.style.use('fast')
@@ -68,6 +68,35 @@ def draw_pi_top_chart(data_frame, block_window):
 
     print('')
     print('Drawing Pi Top..')
+
+    plt.show(block=block_window)
+
+
+def draw_pi_bottom(data_frame, block_window):
+    plt.figure(figsize=(12, 6))  # A new window
+
+    plt.style.use('fast')
+    plt.grid(False)
+
+    # Calculate the 471-day Moving Average (MA) and multiply by 0.475
+    data_frame['471_MA'] = data_frame['close'].rolling(window=471).mean() * 0.475
+
+    # Calculate the 150-day Exponential Moving Average (EMA) and multiply by 0.475
+    data_frame['150_EMA'] = data_frame['close'].ewm(span=150, adjust=False).mean() * 0.475
+
+    plt.plot(data_frame.index, data_frame['close'], '-', linewidth=1)
+    plt.plot(data_frame.index, data_frame['471_MA'], '-', linewidth=1)
+    plt.plot(data_frame.index, data_frame['150_EMA'], '-', linewidth=1)
+
+    axis = plt.gca()
+    axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+    
+    plt.title('Pi Bottom')
+    plt.ylabel('Price (USD)')
+    plt.legend(['BTC Price', '471 MA * 0.475', '150 EMA * 0.475'])
+
+    print('')
+    print('Drawing Pi Bottom..')
 
     plt.show(block=block_window)
 
@@ -112,7 +141,8 @@ def run():
     print('Log file saved at: ' + os.path.abspath(log_file_name))
 
     # Draw graphs
-    draw_pi_top_chart(daily, False)
+    draw_pi_top(daily, False)
+    draw_pi_bottom(daily, False)
     draw_weeks_moving_average(daily, 140, True)
 
 
