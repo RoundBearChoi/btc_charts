@@ -12,6 +12,7 @@ def download_daily_btc_data(total_years):
     days_per_download = 2000
     remaining_days = total_days % 2000
 
+    print('')
     print('Downloading ' + str(total_days) + ' days worth of data from cryptocompare..')
     print('(' + str(total_years) + ' years)')
 

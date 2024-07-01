@@ -12,16 +12,17 @@ import rsi_vs_halving
 def run():
     print('')
     print('Hi.')
-    print('')
 
     daily = download.download_daily_btc_data(8.5)
 
     # Log data
     print('')
     print('Download complete. Logging BTC data..')
+
     log_file_name = 'btc_data.log'
     logging.basicConfig(filename=log_file_name, level=logging.INFO, filemode='w')
     logging.info(daily.to_string())
+
     print('Log file saved at: ' + os.path.abspath(log_file_name))
 
     # Draw graphs
