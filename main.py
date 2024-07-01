@@ -62,17 +62,17 @@ def draw_pi_top_chart(data_frame, block_window):
     axis = plt.gca()
     axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-    plt.title('Pi Top Chart')
+    plt.title('Pi Top')
     plt.ylabel('Price (USD)')
     plt.legend()
 
     print('')
-    print('Drawing Pi Top Chart..')
+    print('Drawing Pi Top..')
 
     plt.show(block=block_window)
 
 
-def draw_pi_bottom_chart(data_frame, weeks, block_window):
+def draw_weeks_moving_average(data_frame, weeks, block_window):
     plt.figure(figsize=(12, 6))  # A new window
 
     plt.style.use('fast')
@@ -82,7 +82,7 @@ def draw_pi_bottom_chart(data_frame, weeks, block_window):
 
     plt.plot(data_frame['close'], label='Bitcoin Price', linewidth=1)
     plt.plot(data_frame['moving_avg'], label=f'{weeks}-Week Moving Average', linewidth=1)
-    plt.title('Pi Bottom Chart')
+    plt.title('Moving Average')
 
     axis = plt.gca()
     axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
@@ -91,7 +91,7 @@ def draw_pi_bottom_chart(data_frame, weeks, block_window):
     plt.legend()
 
     print('')
-    print('Drawing Pi Bottom Chart..')
+    print('Drawing Weeks Moving Average..')
 
     plt.show(block=block_window)
 
@@ -113,7 +113,7 @@ def run():
 
     # Draw graphs
     draw_pi_top_chart(daily, False)
-    draw_pi_bottom_chart(daily, 140, True)
+    draw_weeks_moving_average(daily, 140, True)
 
 
 if __name__ == '__main__':
