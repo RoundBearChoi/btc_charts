@@ -55,9 +55,9 @@ def draw_pi_top_chart(data_frame, block_window):
     data_frame[str(slow) + '_MA * 2'] = data_frame['close'].rolling(window=slow).mean() * 2
     data_frame[str(quick) + '_MA'] = data_frame['close'].rolling(window=quick).mean()
 
-    plt.plot(data_frame['close'], label='BTC Price', linewidth=0.3)
-    plt.plot(data_frame[str(slow) + '_MA * 2'], label=str(slow) + '-day MA * 2', linewidth=0.9)
-    plt.plot(data_frame[str(quick) + '_MA'], label=str(quick) + '-day MA', linewidth=0.9)
+    plt.plot(data_frame['close'], label='BTC Price', linewidth=0.4)
+    plt.plot(data_frame[str(slow) + '_MA * 2'], label=str(slow) + '-day MA * 2', linewidth=1)
+    plt.plot(data_frame[str(quick) + '_MA'], label=str(quick) + '-day MA', linewidth=1)
 
     axis = plt.gca()
     axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
@@ -75,13 +75,13 @@ def draw_pi_top_chart(data_frame, block_window):
 def draw_moving_average(data_frame, weeks, block_window):
     plt.figure(figsize=(12, 6))  # A new window
 
-    plt.style.use('ggplot')
+    plt.style.use('fast')
     plt.grid(False)
 
     data_frame['moving_avg'] = data_frame['close'].rolling(window=7 * weeks).mean()
 
-    plt.plot(data_frame['moving_avg'], label=f'{weeks}-Week Moving Average', linewidth=1)
     plt.plot(data_frame['close'], label='Bitcoin Price', linewidth=1)
+    plt.plot(data_frame['moving_avg'], label=f'{weeks}-Week Moving Average', linewidth=1)
     plt.title(str(weeks) + '-Week Moving Average')
 
     axis = plt.gca()
