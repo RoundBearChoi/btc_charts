@@ -1,7 +1,6 @@
 import cryptocompare
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-import matplotlib.dates
 import logging
 import pandas
 import numpy
@@ -143,12 +142,12 @@ def draw_21ema_vs_50sma(data_frame, block_window):
 
     plt.title('21-Day Exponential Moving Average vs 50-Day Moving Average')
     plt.ylabel('Price (USD)')
-    # plt.xticks(rotation=45)
-    # plt.tick_params(axis='x', labelsize=8)
     plt.legend()
 
     axis = plt.gca()
     axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+
+    print('Drawing 21EMA vs 50SMA..')
 
     plt.show(block=block_window)
 
