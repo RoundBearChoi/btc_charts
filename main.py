@@ -12,6 +12,7 @@ from dateutil.relativedelta import relativedelta
 from matplotlib.colors import LinearSegmentedColormap
 from pi_top import draw_pi_top
 from pi_bottom import draw_pi_bottom
+from moving_average_weeks import draw_moving_average_weeks
 
 
 def download_daily_btc_data(total_years):
@@ -47,29 +48,6 @@ def download_daily_btc_data(total_years):
     df = df.resample('D').last().asfreq('D')
 
     return df
-
-
-def draw_weeks_moving_average(data_frame, weeks, block_window):
-    plt.figure(figsize=(12, 6))  # A new window
-
-    plt.style.use('fast')
-    plt.grid(False)
-
-    data_frame['moving_avg'] = data_frame['close'].rolling(window=7 * weeks).mean()
-
-    plt.plot(data_frame['close'], label='Bitcoin Price', linewidth=1)
-    plt.plot(data_frame['moving_avg'], label=f'{weeks}-Week Moving Average', linewidth=1)
-
-    axis = plt.gca()
-    axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
-
-    plt.title('Moving Average')
-    plt.ylabel('Price (USD)')
-    plt.legend()
-
-    print('Drawing Weeks Moving Average..')
-
-    plt.show(block=block_window)
 
 
 def draw_21ema_vs_50sma(data_frame, block_window):
@@ -168,7 +146,7 @@ def run():
     print('')
     draw_pi_top(daily, False)
     draw_pi_bottom(daily, False)
-    draw_weeks_moving_average(daily, 140, False)
+    draw_moving_average_weeks(daily, 140, False)
     draw_21ema_vs_50sma(daily, False)
     draw_rsi_vs_halving(daily, True)
 
