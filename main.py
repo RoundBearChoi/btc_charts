@@ -1,5 +1,5 @@
 import cryptocompare
-import matplotlib.pyplot as plotter
+import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import logging
 import pandas
@@ -9,21 +9,29 @@ import math
 from datetime import date, timedelta
 
 
-def download_daily_btc_data():
+def download_daily_btc_data(total_years):
+    total_days = math.ceil(total_years * 365)
     today = date.today()
-    num_downloads = 3
-    days_per_download = 1400
+    num_downloads = total_days // 2000
+    days_per_download = 2000
+    remaining_days = total_days % 2000
 
-    print('Downloading ' + str(1400) + ' days worth of data ' + str(num_downloads) + ' times from cryptocompare..')
-    total_days = num_downloads * days_per_download
-    total_years = round(total_days / 365, 2)
-    print('Total of ' + str(total_days) + ' days (' + str(total_years) + ' years)')
+    print('Downloading ' + str(total_days) + ' days worth of data from cryptocompare..')
+    print('(' + str(total_years) + ' years)')
 
     data = []
 
     for i in range(num_downloads):
         download_date = today - timedelta(days=i * days_per_download)
-        data_part = cryptocompare.get_historical_price_day('BTC', currency='USD', limit=2000, toTs=download_date)
+        data_part = cryptocompare.get_historical_price_day(
+            'BTC', currency='USD', limit=2000, toTs=download_date)
+        data += data_part
+
+    # Download remaining days
+    if remaining_days > 0:
+        download_date = today - timedelta(days=num_downloads * days_per_download)
+        data_part = cryptocompare.get_historical_price_day(
+            'BTC', currency='USD', limit=remaining_days, toTs=download_date)
         data += data_part
 
     df = pandas.DataFrame(data)
@@ -37,42 +45,42 @@ def download_daily_btc_data():
 
 
 def draw_pi_top_chart(data_frame, block_window):
-    plotter.figure(figsize=(14, 7))  # A new window
+    plt.figure(figsize=(14, 7))  # A new window
 
-    plotter.style.use('fast')
-    plotter.grid(False)
+    plt.style.use('fast')
+    plt.grid(False)
 
     slow = 365
     quick = math.floor(slow / 3.14159)
     data_frame[str(slow) + '_MA * 2'] = data_frame['close'].rolling(window=slow).mean() * 2
     data_frame[str(quick) + '_MA'] = data_frame['close'].rolling(window=quick).mean()
 
-    plotter.plot(data_frame['close'], label='BTC Price', linewidth=0.3)
-    plotter.plot(data_frame[str(slow) + '_MA * 2'], label=str(slow) + '-day MA * 2', linewidth=0.9)
-    plotter.plot(data_frame[str(quick) + '_MA'], label=str(quick) + '-day MA', linewidth=0.9)
+    plt.plot(data_frame['close'], label='BTC Price', linewidth=0.3)
+    plt.plot(data_frame[str(slow) + '_MA * 2'], label=str(slow) + '-day MA * 2', linewidth=0.9)
+    plt.plot(data_frame[str(quick) + '_MA'], label=str(quick) + '-day MA', linewidth=0.9)
 
-    axis = plotter.gca()
+    axis = plt.gca()
     axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-    plotter.title('Pi Top Chart')
-    plotter.ylabel('Price (USD)')
-    plotter.legend()
+    plt.title('Pi Top Chart')
+    plt.ylabel('Price (USD)')
+    plt.legend()
 
     print('')
     print('Drawing Pi Top Chart..')
 
-    plotter.show(block=block_window)
+    plt.show(block=block_window)
 
 
 def another_graph(data_frame, block_window):
-    plotter.figure(figsize=(14, 7))  # A new window
+    plt.figure(figsize=(14, 7))  # A new window
 
-    plotter.style.use('fast')
-    plotter.grid(False)
+    plt.style.use('fast')
+    plt.grid(False)
 
-    plotter.plot(data_frame['close'], label='BTC Price', linewidth=0.3)
+    plt.plot(data_frame['close'], label='BTC Price', linewidth=0.3)
 
-    plotter.show(block=block_window)
+    plt.show(block=block_window)
 
 
 def run():
@@ -80,7 +88,7 @@ def run():
     print('Hi.')
     print('')
 
-    daily = download_daily_btc_data()
+    daily = download_daily_btc_data(8.5)
 
     # Log data
     print('')
