@@ -4,7 +4,7 @@ import matplotlib.ticker as ticker
 import math
 
 
-def draw_pi_top(data_frame, block_window):
+def draw(data_frame, block_window):
     plt.figure(figsize=(12, 6))  # A new window
 
     plt.style.use('fast')

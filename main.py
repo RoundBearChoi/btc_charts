@@ -1,12 +1,12 @@
 import logging
 import os
 
-from download_btc_data import download_daily_btc_data
-from pi_top import draw_pi_top
-from pi_bottom import draw_pi_bottom
-from moving_average_weeks import draw_moving_average_weeks
-from ema_vs_sma import draw_21ema_vs_50sma
-from rsi_vs_halving import draw_rsi_vs_halving
+import download_btc_data as download
+import pi_top
+import pi_bottom
+import moving_average_weeks
+import ema_vs_sma
+import rsi_vs_halving
 
 
 def run():
@@ -14,7 +14,7 @@ def run():
     print('Hi.')
     print('')
 
-    daily = download_daily_btc_data(8.5)
+    daily = download.download_daily_btc_data(8.5)
 
     # Log data
     print('')
@@ -26,11 +26,11 @@ def run():
 
     # Draw graphs
     print('')
-    draw_pi_top(daily, False)
-    draw_pi_bottom(daily, False)
-    draw_moving_average_weeks(daily, 140, False)
-    draw_21ema_vs_50sma(daily, False)
-    draw_rsi_vs_halving(daily, True)
+    pi_top.draw(daily, False)
+    pi_bottom.draw(daily, False)
+    moving_average_weeks.draw(daily, 140, False)
+    ema_vs_sma.draw(daily, False)
+    rsi_vs_halving.draw(daily, True)
 
 
 if __name__ == '__main__':

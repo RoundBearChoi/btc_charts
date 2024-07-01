@@ -5,7 +5,7 @@ import numpy
 from dateutil.relativedelta import relativedelta
 from matplotlib.colors import LinearSegmentedColormap
 
-def draw_rsi_vs_halving(data_frame, block_window):
+def draw(data_frame, block_window):
     plt.figure(figsize=(12, 6))  # A new window
 
     plt.style.use('fast')

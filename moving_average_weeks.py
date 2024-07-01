@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 
-def draw_moving_average_weeks(data_frame, weeks, block_window):
+def draw(data_frame, weeks, block_window):
     plt.figure(figsize=(12, 6))  # A new window
 
     plt.style.use('fast')

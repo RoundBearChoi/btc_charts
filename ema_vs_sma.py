@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 
-def draw_21ema_vs_50sma(data_frame, block_window):
+def draw(data_frame, block_window):
     plt.figure(figsize=(12, 6))  # A new window
 
     # Calculate EMA21 and SMA50
