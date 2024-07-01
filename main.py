@@ -36,15 +36,16 @@ def download_daily_btc_data():
     return df
 
 
-def draw_pi_top_chart(data_frame):
+def draw_pi_top_chart(data_frame, block_window):
+    plotter.figure(figsize=(14, 7))  # A new window
+
+    plotter.style.use('fast')
+    plotter.grid(False)
+
     slow = 365
     quick = math.floor(slow / 3.14159)
     data_frame[str(slow) + '_MA * 2'] = data_frame['close'].rolling(window=slow).mean() * 2
     data_frame[str(quick) + '_MA'] = data_frame['close'].rolling(window=quick).mean()
-
-    plotter.style.use('fast')
-    plotter.figure(figsize=(14, 7))
-    plotter.grid(False)
 
     plotter.plot(data_frame['close'], label='BTC Price', linewidth=0.3)
     plotter.plot(data_frame[str(slow) + '_MA * 2'], label=str(slow) + '-day MA * 2', linewidth=0.9)
@@ -60,7 +61,18 @@ def draw_pi_top_chart(data_frame):
     print('')
     print('Drawing Pi Top Chart..')
 
-    plotter.show()
+    plotter.show(block=block_window)
+
+
+def another_graph(data_frame, block_window):
+    plotter.figure(figsize=(14, 7))  # A new window
+
+    plotter.style.use('fast')
+    plotter.grid(False)
+
+    plotter.plot(data_frame['close'], label='BTC Price', linewidth=0.3)
+
+    plotter.show(block=block_window)
 
 
 def run():
@@ -78,8 +90,9 @@ def run():
     logging.info(daily.to_string())
     print('Log file saved at: ' + os.path.abspath(log_file_name))
 
-    # Draw
-    draw_pi_top_chart(daily)
+    # Draw graphs
+    draw_pi_top_chart(daily, False)
+    another_graph(daily, True)
 
 
 if __name__ == '__main__':
