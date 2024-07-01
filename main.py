@@ -1,7 +1,6 @@
 import cryptocompare
 import matplotlib.pyplot as plotter
 import matplotlib.ticker as ticker
-import numpy as np
 import logging
 import pandas
 import os
@@ -15,7 +14,7 @@ def download_daily_btc_data():
     num_downloads = 3
     days_per_download = 1400
 
-    print('Downloading ' + str(1400) + ' days worth of data ' + str(num_downloads) + ' times..')
+    print('Downloading ' + str(1400) + ' days worth of data ' + str(num_downloads) + ' times from cryptocompare..')
     total_days = num_downloads * days_per_download
     total_years = round(total_days / 365, 2)
     print('Total of ' + str(total_days) + ' days (' + str(total_years) + ' years)')
@@ -38,23 +37,28 @@ def download_daily_btc_data():
 
 
 def draw_pi_top_chart(data_frame):
-    slow = 360
+    slow = 365
     quick = math.floor(slow / 3.14159)
-    data_frame[str(slow) + '_MA'] = data_frame['close'].rolling(window=slow).mean() * 2
+    data_frame[str(slow) + '_MA * 2'] = data_frame['close'].rolling(window=slow).mean() * 2
     data_frame[str(quick) + '_MA'] = data_frame['close'].rolling(window=quick).mean()
 
     plotter.style.use('ggplot')
     plotter.figure(figsize=(14, 7))
-    plotter.plot(data_frame[str(slow) + '_MA'], label=str(slow) + '-day MA', linewidth=0.8)
-    plotter.plot(data_frame[str(quick) + '_MA'], label=str(quick) + '-day MA', linewidth=0.8)
-    plotter.plot(data_frame['close'], label='Bitcoin', linewidth=0.4)
-    plotter.xlabel('Date')
-    plotter.ylabel('Price (USD)')
     plotter.grid(False)
+
+    plotter.plot(data_frame[str(slow) + '_MA * 2'], label=str(slow) + '-day MA * 2', linewidth=0.8)
+    plotter.plot(data_frame[str(quick) + '_MA'], label=str(quick) + '-day MA', linewidth=0.8)
+    plotter.plot(data_frame['close'], label='BTC Price', linewidth=0.4)
+
+    axis = plotter.gca()
+    axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+
+    plotter.title('Pi Top Chart')
+    plotter.ylabel('Price (USD)')
     plotter.legend()
 
-    ax = plotter.gca()
-    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+    print('')
+    print('Drawing Pi Top Chart..')
 
     plotter.show()
 
