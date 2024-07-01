@@ -169,7 +169,6 @@ def draw_rsi_vs_halving(data_frame, block_window):
         plt.plot(x_values, y_values, color=color_value)
 
     plt.title('Monthly RSI vs Next Halving')
-    plt.legend()
 
     print('Drawing Monthly RSI vs Next Halving..')
 
