@@ -38,7 +38,7 @@ def download_daily_btc_data(total_years):
     df['time'] = pandas.to_datetime(df['time'], unit='s')
     df.set_index('time', inplace=True, drop=False)
 
-    # Resampled to daily by default
+    # Resample to daily
     df = df.resample('D').last().asfreq('D')
 
     return df
