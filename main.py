@@ -1,6 +1,7 @@
 import cryptocompare
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import matplotlib.dates
 import logging
 import pandas
 import numpy
@@ -125,6 +126,33 @@ def draw_weeks_moving_average(data_frame, weeks, block_window):
     plt.show(block=block_window)
 
 
+def draw_21ema_vs_50sma(data_frame, block_window):
+    plt.figure(figsize=(12, 6))  # A new window
+
+    # Calculate EMA21 and SMA50
+    data_frame['EMA21'] = data_frame['close'].ewm(span=21, adjust=False).mean()
+    data_frame['SMA50'] = data_frame['close'].rolling(window=50).mean()
+
+    plt.style.use('fast')
+    plt.grid(False)
+
+    # Plot closing price, EMA21 and SMA50
+    plt.plot(data_frame.index, data_frame['close'], label='Bitcoin Close Price', linewidth=0.55)
+    plt.plot(data_frame.index, data_frame['EMA21'], label='21 Day EMA', linewidth=0.85)
+    plt.plot(data_frame.index, data_frame['SMA50'], label='50 Day SMA', linewidth=0.85)
+
+    plt.title('21-Day Exponential Moving Average vs 50-Day Moving Average')
+    plt.ylabel('Price (USD)')
+    # plt.xticks(rotation=45)
+    # plt.tick_params(axis='x', labelsize=8)
+    plt.legend()
+
+    axis = plt.gca()
+    axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+
+    plt.show(block=block_window)
+
+
 def draw_rsi_vs_halving(data_frame, block_window):
     plt.figure(figsize=(12, 6))  # A new window
 
@@ -195,6 +223,7 @@ def run():
     draw_pi_top(daily, False)
     draw_pi_bottom(daily, False)
     draw_weeks_moving_average(daily, 140, False)
+    draw_21ema_vs_50sma(daily, False)
     draw_rsi_vs_halving(daily, True)
 
 
