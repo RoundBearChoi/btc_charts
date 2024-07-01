@@ -1,1 +1,3 @@
-# test
+```
+pip install cryptocompare pandas matplotlib
+```
