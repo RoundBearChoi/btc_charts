@@ -12,11 +12,13 @@ def download_daily_btc_data(total_years):
     remaining_days = total_days % 2000
 
     print('')
+    print('Today is ' + str(dt.date.today()))
     print('Downloading ' + str(total_days) + ' days worth of data from cryptocompare..')
     print('(' + str(total_years) + ' years)')
 
     data = []
 
+    # Download 2000x days
     for i in range(num_downloads):
         download_date = today - dt.timedelta(days=i * days_per_download)
         data_part = cryptocompare.get_historical_price_day(
