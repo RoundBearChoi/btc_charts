@@ -140,7 +140,7 @@ def draw_21ema_vs_50sma(data_frame, block_window):
     plt.plot(data_frame.index, data_frame['EMA21'], label='21 Day EMA', linewidth=0.85)
     plt.plot(data_frame.index, data_frame['SMA50'], label='50 Day SMA', linewidth=0.85)
 
-    plt.title('21-Day Exponential Moving Average vs 50-Day Moving Average')
+    plt.title('21-Day Exponential Moving Average vs 50-Day Simple Moving Average')
     plt.ylabel('Price (USD)')
     plt.legend()
 
