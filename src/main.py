@@ -6,6 +6,7 @@ import pi_top
 import pi_bottom
 import moving_average_weeks
 import ema_vs_sma
+import sma_vs_sma
 import rsi_vs_halving
 
 
@@ -30,6 +31,7 @@ def run():
     pi_top.draw(daily, False)
     pi_bottom.draw(daily, False)
     moving_average_weeks.draw(daily, 140, False)
+    sma_vs_sma.draw(daily, False)
     ema_vs_sma.draw(daily, False)
     rsi_vs_halving.draw(daily, True)
 
