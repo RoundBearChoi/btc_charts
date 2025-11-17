@@ -7,7 +7,8 @@ import moving_average_weeks
 import ema_vs_sma
 import sma_vs_sma
 import rsi_vs_halving
-import fifty_week_ema_vs_weekly_rsi as ema_rsi  # Import the new module (rename to avoid name conflicts if needed)
+import fifty_week_ema_vs_weekly_rsi as ema_rsi
+import usd_m2_vs_btc as m2_btc
 
 def run():
     print('')
@@ -28,7 +29,8 @@ def run():
     sma_vs_sma.draw(daily, False)
     ema_vs_sma.draw(daily, False)
     rsi_vs_halving.draw(daily, False)
-    ema_rsi.draw(daily, True)  # Add the call to the new graph, with block=False like most others
+    ema_rsi.draw(daily, False)
+    m2_btc.draw(daily, True)
 
 if __name__ == '__main__':
     run()
