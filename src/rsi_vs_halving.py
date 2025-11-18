@@ -28,7 +28,7 @@ def draw(data_frame, block_window):
 
 def __plot(data_frame, block_window):
     # 2028-04-17 is next predicted date
-    halving_dates = ['2012-11-28', '2016-07-09', '2020-05-11', '2024-04-19', '2028-04-17']
+    halving_dates = ['2012-11-28', '2016-07-09', '2020-05-11', '2024-04-19', '2028-04-20']
     halving_dates = pandas.to_datetime(halving_dates)
     halving_dates = pandas.DatetimeIndex(halving_dates)
 
