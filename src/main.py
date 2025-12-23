@@ -13,7 +13,7 @@ import usd_m2_vs_btc as m2_btc
 def run():
     print('')
     print('Hi.')
-    daily = download.download_daily_btc_data(8.5)
+    daily = download.download_full_df()
     # Log data
     print('')
     print('Download complete. Logging BTC data..')
