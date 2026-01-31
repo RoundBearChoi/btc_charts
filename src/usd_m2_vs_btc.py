@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 from pandas.tseries.offsets import MonthEnd
 
+
 # downloaded usd m2 data
 url = "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H6&series=798e2796917702a5f8423426ba7e6b42&lastobs=&from=&to=&filetype=csv&label=include&layout=seriescolumn"
 filename = "FRB_H6.csv"
@@ -16,6 +17,7 @@ if response.status_code == 200:
     # print(f"csv successfully downloaded and saved as '{filename}'")
 # else:
     # print(f"failed to download usd m2. status code: {response.status_code}")
+
 
 def draw(data_frame, block_window):
     # Resample daily BTC data to monthly (using last close of the month)

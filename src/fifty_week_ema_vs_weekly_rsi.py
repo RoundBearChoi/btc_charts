@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
+
 def draw(data_frame, block_window):
     # Resample daily data to weekly (using last close of the week)
     weekly = data_frame.resample('W').agg({'close': 'last'})

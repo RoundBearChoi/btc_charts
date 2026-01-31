@@ -10,6 +10,7 @@ import rsi_vs_halving
 import fifty_week_ema_vs_weekly_rsi as ema_rsi
 import usd_m2_vs_btc as m2_btc
 
+
 def run():
     print('')
     print('Hi.')
@@ -31,6 +32,7 @@ def run():
     rsi_vs_halving.draw(daily, False)
     ema_rsi.draw(daily, False)
     m2_btc.draw(daily, True)
+
 
 if __name__ == '__main__':
     run()
