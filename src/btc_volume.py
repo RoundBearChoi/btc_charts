@@ -75,8 +75,14 @@ def plot_btc_hourly_volume(df, save_path='btc_hourly_volume_3weeks_kst.png'):
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.xticks(rotation=45, ha='right')
     
-    # Legend
-    ax.legend(loc='upper left')
+    # === LEGEND - CLEAN EXTERNAL OPTION (your requested change) ===
+    ax.legend(loc='upper left', 
+              bbox_to_anchor=(1.02, 1.0), 
+              fontsize=11, 
+              frameon=True)
+    
+    # Make room for the external legend on the right
+    fig.subplots_adjust(right=0.82)
     
     # Partial hour warning
     last_time = df['datetime_kst_str'].iloc[-1]
