@@ -4,9 +4,14 @@ import pandas as pd
 from pandas.tseries.offsets import MonthEnd
 import requests
 from io import StringIO   # ← THIS WAS THE MISSING IMPORT
+from btc_data_loader import load_btc_data   # ← NEW
 
 
-def draw(data_frame, block_window):
+def draw(block_window):
+    # === Load data using the shared loader (no more duplication) ===
+    data_frame = load_btc_data()
+
+    # === Original plotting logic (100% unchanged) ===
     # Resample daily BTC data to monthly (last close of the month)
     monthly_btc = data_frame.resample('ME').agg({'close': 'last'})
 
@@ -55,3 +60,7 @@ def draw(data_frame, block_window):
     plt.tight_layout()
     print('✅ Drawing US M2 (bottom) vs BTC Price (top) — using latest FRED CSV data')
     plt.show(block=block_window)
+
+
+if __name__ == '__main__':   # ← Added for standalone runs
+    draw(True)   # True = block until you close the plot window

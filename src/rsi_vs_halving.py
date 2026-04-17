@@ -3,9 +3,14 @@ import matplotlib.colors as colors
 import dateutil.relativedelta as rel
 import pandas
 import numpy
+from btc_data_loader import load_btc_data   # ← NEW
 
 
-def draw(data_frame, block_window):
+def draw(block_window):
+    # === Load data using the shared loader (no more duplication) ===
+    data_frame = load_btc_data()
+
+    # === Original draw logic (100% unchanged) ===
     plt.figure(figsize=(12, 6))  # A new window
 
     plt.style.use('fast')
@@ -57,3 +62,7 @@ def __plot(data_frame, block_window):
     print('Drawing Monthly RSI vs Next Halving..')
 
     plt.show(block=block_window)
+
+
+if __name__ == '__main__':   # ← Added for standalone runs
+    draw(True)   # True = block until you close the plot window

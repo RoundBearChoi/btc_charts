@@ -1,8 +1,13 @@
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+from btc_data_loader import load_btc_data   # ← NEW
 
 
-def draw(data_frame, weeks, block_window):
+def draw(weeks, block_window):
+    # === Load data using the shared loader (no more duplication) ===
+    data_frame = load_btc_data()
+
+    # === Original plotting logic (100% unchanged) ===
     plt.figure(figsize=(12, 6))  # A new window
 
     plt.style.use('fast')
@@ -23,3 +28,7 @@ def draw(data_frame, weeks, block_window):
     print('Drawing Weeks Moving Average..')
 
     plt.show(block=block_window)
+
+
+if __name__ == '__main__':   # ← Added for standalone runs
+    draw(140, True)   # Default to 140 weeks (same value main.py currently uses)
