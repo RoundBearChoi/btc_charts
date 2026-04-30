@@ -35,6 +35,11 @@ GRID_ALPHA = 0.3
 #   True  = linked (both charts zoom/pan together - classic synchronized view)
 #   False = independent (each chart can be zoomed/panned separately)
 SHARE_X_AXIS = False
+
+# === NaN handling for early data (Improvement #2) ===
+# False = keep full BTC history (MAs start later - recommended for visualization)
+# True  = drop early rows so chart starts only when all indicators are defined
+DROP_EARLY_NANS = False
 # ===========================================================
 
 
@@ -42,18 +47,26 @@ def draw(block_window):
     data_frame = btc_data.get_btc_price_data()
 
     # === Pi Cycle Bottom Indicator ===
-    data_frame['471_MA_bottom'] = data_frame['close'].rolling(window=471).mean() * PI_BOTTOM_FACTOR
-    data_frame['150_EMA'] = data_frame['close'].ewm(span=150, adjust=False).mean()
+    data_frame['471_SMA_bottom'] = data_frame['close'].rolling(window=471).mean() * PI_BOTTOM_FACTOR
+    data_frame['150_EMA_bottom'] = data_frame['close'].ewm(span=150, adjust=False).mean()
 
     # === Pi Cycle Top Indicator ===
-    data_frame['350_MA_top'] = data_frame['close'].rolling(window=350).mean() * PI_TOP_FACTOR
-    data_frame['111_SMA'] = data_frame['close'].rolling(window=111).mean()
+    data_frame['350_SMA_top'] = data_frame['close'].rolling(window=350).mean() * PI_TOP_FACTOR
+    data_frame['111_SMA_top'] = data_frame['close'].rolling(window=111).mean()
+
+    # === NaN handling (Improvement #2) ===
+    if DROP_EARLY_NANS:
+        indicator_cols = ['471_SMA_bottom', '150_EMA_bottom', '350_SMA_top', '111_SMA_top']
+        data_frame = data_frame.dropna(subset=indicator_cols)
+        print(f'   → Dropped early NaN rows → chart now starts at {data_frame.index[0].date()}')
+    else:
+        print('   → Keeping full price history (NaNs in early MAs are normal and auto-skipped by matplotlib)')
 
     # === Plotting ===
     fig, (ax1, ax2) = plt.subplots(
         2, 1,
         figsize=FIGSIZE,
-        sharex=SHARE_X_AXIS,          # ← Now controlled by the CONFIG option above
+        sharex=SHARE_X_AXIS,
         gridspec_kw={'height_ratios': [1, 1]}
     )
 
@@ -62,10 +75,10 @@ def draw(block_window):
     # Top panel: Pi Bottom
     ax1.plot(data_frame.index, data_frame['close'], '-',
              linewidth=PRICE_WIDTH, color=PRICE_COLOR, label='BTC Price')
-    ax1.plot(data_frame.index, data_frame['471_MA_bottom'], '-',
+    ax1.plot(data_frame.index, data_frame['471_SMA_bottom'], '-',
              linewidth=BOTTOM_471_WIDTH, color=BOTTOM_471_COLOR,
              label=f'471 SMA × {PI_BOTTOM_FACTOR}')
-    ax1.plot(data_frame.index, data_frame['150_EMA'], '-',
+    ax1.plot(data_frame.index, data_frame['150_EMA_bottom'], '-',
              linewidth=BOTTOM_150_WIDTH, color=BOTTOM_150_COLOR, label='150 EMA')
     ax1.set_title('Pi Cycle Bottom Indicator', fontsize=14, fontweight='bold')
     ax1.set_ylabel('Price (USD)')
@@ -75,10 +88,10 @@ def draw(block_window):
     # Bottom panel: Pi Top
     ax2.plot(data_frame.index, data_frame['close'], '-',
              linewidth=PRICE_WIDTH, color=PRICE_COLOR, label='BTC Price')
-    ax2.plot(data_frame.index, data_frame['350_MA_top'], '-',
+    ax2.plot(data_frame.index, data_frame['350_SMA_top'], '-',
              linewidth=TOP_350_WIDTH, color=TOP_350_COLOR,
              label=f'350 SMA × {PI_TOP_FACTOR}')
-    ax2.plot(data_frame.index, data_frame['111_SMA'], '-',
+    ax2.plot(data_frame.index, data_frame['111_SMA_top'], '-',
              linewidth=TOP_111_WIDTH, color=TOP_111_COLOR, label='111 SMA')
     ax2.set_title('Pi Cycle Top Indicator', fontsize=14, fontweight='bold')
     ax2.set_ylabel('Price (USD)')
@@ -104,7 +117,6 @@ def draw(block_window):
     print(f'   → Figure size:          {FIGSIZE}')
     print(f'   → X-axis zoom behavior: {"Linked (synchronized)" if SHARE_X_AXIS else "Independent (separate zoom/pan)"}')
     print(f'   → Price line:           color={PRICE_COLOR}, width={PRICE_WIDTH}')
-    print('   → All colors & widths loaded from CONFIG section above')
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.show(block=block_window)
