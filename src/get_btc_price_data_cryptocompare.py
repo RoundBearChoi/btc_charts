@@ -105,9 +105,9 @@ def load_btc_data():
         )
     
     try:
-        print(f"    Loading BTC data from {CSV_FILE}...")
+        print(f"\nLoading BTC data from {CSV_FILE}...")
         df = pd.read_csv(CSV_FILE, index_col=0, parse_dates=True)
-        print(f"    Loaded {len(df):,} rows (latest date: {df.index.max().date()})")
+        print(f"Loaded {len(df):,} rows (latest date: {df.index.max().date()})")
         return df
     except Exception as e:
         raise RuntimeError(f"❌ Failed to load {CSV_FILE}: {e}") from e
