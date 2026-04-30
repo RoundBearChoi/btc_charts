@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from matplotlib.widgets import Slider
-from btc_data_loader import load_btc_data   # ← shared loader (unchanged)
+from get_btc_price_data_cryptocompare import get_btc_price_data   # ← now uses the cryptocompare data fetcher
 
 
 # ==================== CONFIG SECTION ====================
@@ -29,11 +29,12 @@ def draw(initial_days=DEFAULT_DAYS,
          block_window=BLOCK_WINDOW):
     """
     Draw Bitcoin price chart with real-time adjustable moving average.
-    All slider settings come from the CONFIG SECTION above (or can be overridden).
+    Now uses get_btc_price_data() from get_btc_price_data_cryptocompare.py
+    (automatically downloads + caches data if the CSV is missing).
     """
 
-    # === Load data using the shared loader (no duplication) ===
-    data_frame = load_btc_data()
+    # === Load data using the CryptoCompare fetcher (handles cache or download) ===
+    data_frame = get_btc_price_data()
 
     # === Create figure and axis ===
     fig, ax = plt.subplots(figsize=FIGURE_SIZE)
@@ -58,7 +59,7 @@ def draw(initial_days=DEFAULT_DAYS,
     plt.xlabel('Time (data points)')
     plt.legend()
 
-    # === Real-time Slider (now with even clearer config mapping) ===
+    # === Real-time Slider ===
     slider_ax = plt.axes([0.20, 0.02, 0.60, 0.03], facecolor='lightgray')
     days_slider = Slider(
         ax=slider_ax,
@@ -83,7 +84,7 @@ def draw(initial_days=DEFAULT_DAYS,
     days_slider.on_changed(update)
 
     # Friendly console output
-    print(f'Drawing interactive Moving Average (range: {min_days}-{max_days} days)')
+    print(f'\nDrawing interactive Moving Average (range: {min_days}-{max_days} days)')
     print(f'→ Red indicator line starts at {initial_days} days (see CONFIG SECTION)')
     print('→ Drag the slider below the chart to adjust in real time.')
 
