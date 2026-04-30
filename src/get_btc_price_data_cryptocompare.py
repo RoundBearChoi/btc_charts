@@ -1,15 +1,18 @@
-import cryptocompare
 import pandas as pd
+import os
+import cryptocompare
 import math
 import datetime as dt
-import time  # for the sleep
+import time
+
+CSV_FILE = 'btc_data.csv'
+
 
 def download_btc_daily(years: float, end_date: dt.date = None) -> pd.DataFrame:
     """
     Downloads approximately 'years' worth of daily BTC/USD data from CryptoCompare,
     ending on or before 'end_date' (defaults to today).
     Handles chunking in 2000-day limits.
-    Returns a DataFrame indexed by date with daily data.
     """
     if end_date is None:
         end_date = dt.date.today()
@@ -52,8 +55,9 @@ def download_btc_daily(years: float, end_date: dt.date = None) -> pd.DataFrame:
     print(f"Downloaded {len(df)} days of data.")
     return df
 
+
 def download_full_df():
-    # Example usage: Download 16+ years in two 8-year batches with a pause
+    """Download full ~16 years of data in two batches (most recent 8 years + older 8 years)."""
     today = dt.date.today()
 
     df_recent = download_btc_daily(8.0)  # Most recent ~8 years (up to today)
@@ -76,6 +80,57 @@ def download_full_df():
         full_df = df_recent
 
     full_df = full_df.sort_index()
-    print(f"\nTotal combined data: {len(full_df)} days from {full_df.index.min()} to {full_df.index.max()}")
+    print(f"\nTotal combined data: {len(full_df)} days from {full_df.index.min().date()} to {full_df.index.max().date()}")
 
     return full_df
+
+
+def load_btc_data():
+    """Load BTC data from the cached CSV file.
+    
+    Raises clear, user-friendly errors if the file is missing or unreadable.
+    """
+    if not os.path.exists(CSV_FILE):
+        raise FileNotFoundError(
+            f"❌ '{CSV_FILE}' not found.\n"
+            "Please run this script first (or call get_btc_price_data()) to download and cache the BTC data."
+        )
+    
+    try:
+        print(f"Loading BTC data from {CSV_FILE}...")
+        df = pd.read_csv(CSV_FILE, index_col=0, parse_dates=True)
+        print(f"✅ Loaded {len(df):,} rows (latest date: {df.index.max().date()})")
+        return df
+    except Exception as e:
+        raise RuntimeError(f"❌ Failed to load {CSV_FILE}: {e}") from e
+
+
+def get_btc_price_data(force_download: bool = False) -> pd.DataFrame:
+    """
+    Main entry point: returns the full BTC daily price DataFrame.
+    
+    - Uses cached CSV by default (fast, no prompt).
+    - Downloads fresh data + saves cache if cache is missing or force_download=True.
+    """
+    if not force_download and os.path.exists(CSV_FILE):
+        try:
+            return load_btc_data()
+        except Exception as e:
+            print(f"⚠️  {e}\nDownloading fresh data instead.")
+    
+    print("Downloading fresh BTC data...")
+    daily = download_full_df()
+    
+    # Save cache for next time
+    daily.to_csv(CSV_FILE)
+    print(f"✅ Data cached to: {os.path.abspath(CSV_FILE)}")
+    
+    return daily
+
+
+if __name__ == "__main__":
+    print("=== BTC Price Data Fetcher (CryptoCompare) ===")
+    df = get_btc_price_data()
+    print(f"\n✅ Final DataFrame ready: {len(df):,} rows")
+    print(f"Date range: {df.index.min().date()} to {df.index.max().date()}")
+    print(f"Cache file: {CSV_FILE}")

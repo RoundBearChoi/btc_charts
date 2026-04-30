@@ -1,12 +1,14 @@
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import math
-from btc_data_loader import load_btc_data   # ← NEW
+
+import get_btc_price_data_cryptocompare as btc_data
 
 
 def draw(block_window):
-    # === Load data using the shared loader (no more duplication) ===
-    data_frame = load_btc_data()
+    # === Load data using the new unified data module ===
+    # (No more dependency on deleted btc_data_loader.py)
+    data_frame = btc_data.get_btc_price_data()
 
     # === Original plotting logic (100% unchanged) ===
     plt.figure(figsize=(12, 6))  # A new window

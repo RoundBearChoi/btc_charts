@@ -3,12 +3,14 @@ import matplotlib.colors as colors
 import dateutil.relativedelta as rel
 import pandas
 import numpy
-from btc_data_loader import load_btc_data   # ← NEW
+
+import get_btc_price_data_cryptocompare as btc_data
 
 
 def draw(block_window):
-    # === Load data using the shared loader (no more duplication) ===
-    data_frame = load_btc_data()
+    # === Load data using the new unified data module ===
+    # (No more dependency on deleted btc_data_loader.py)
+    data_frame = btc_data.get_btc_price_data()
 
     # === Original draw logic (100% unchanged) ===
     plt.figure(figsize=(12, 6))  # A new window
@@ -64,5 +66,5 @@ def __plot(data_frame, block_window):
     plt.show(block=block_window)
 
 
-if __name__ == '__main__':   # ← Added for standalone runs
+if __name__ == '__main__':   # ← Keeps standalone runs working
     draw(True)   # True = block until you close the plot window

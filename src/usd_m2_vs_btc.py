@@ -3,13 +3,15 @@ import matplotlib.ticker as ticker
 import pandas as pd
 from pandas.tseries.offsets import MonthEnd
 import requests
-from io import StringIO   # ← THIS WAS THE MISSING IMPORT
-from btc_data_loader import load_btc_data   # ← NEW
+from io import StringIO
+
+import get_btc_price_data_cryptocompare as btc_data
 
 
 def draw(block_window):
-    # === Load data using the shared loader (no more duplication) ===
-    data_frame = load_btc_data()
+    # === Load data using the new unified data module ===
+    # (No more dependency on deleted btc_data_loader.py)
+    data_frame = btc_data.get_btc_price_data()
 
     # === Original plotting logic (100% unchanged) ===
     # Resample daily BTC data to monthly (last close of the month)
@@ -62,5 +64,5 @@ def draw(block_window):
     plt.show(block=block_window)
 
 
-if __name__ == '__main__':   # ← Added for standalone runs
+if __name__ == '__main__':   # ← Keeps standalone runs working
     draw(True)   # True = block until you close the plot window
