@@ -191,5 +191,5 @@ fabric.properties
 [._]sw[a-p]
 
 # csv files
-#*.csv
-#*.csv#
+*.csv
+*.csv#
