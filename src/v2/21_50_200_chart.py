@@ -18,16 +18,16 @@ SHOW_GRID = True
 FIGURE_SIZE = (14, 10)              # (width, height) in inches
 
 # === Line colors and widths  ===
-CLOSE_COLOR = '#F7931A'
-CLOSE_WIDTH = 1.1
+CLOSE_COLOR = 'orange'
+CLOSE_WIDTH = 0.8
 
-EMA21_COLOR = '#00FFAA'
+EMA21_COLOR = 'green'
 EMA21_WIDTH = 1.3
 
 SMA50_COLOR = '#FF00FF'
 SMA50_WIDTH = 1.3
 
-SMA200_COLOR = '#4444FF'
+SMA200_COLOR = 'red'
 SMA200_WIDTH = 1.6
 
 VOLUME_COLOR = '#1E90FF'
