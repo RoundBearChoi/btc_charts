@@ -85,8 +85,6 @@ def draw(initial_days=DEFAULT_DAYS,
 
     # Friendly console output
     print(f'\nDrawing interactive Moving Average (range: {min_days}-{max_days} days)')
-    print(f'→ Red indicator line starts at {initial_days} days (see CONFIG SECTION)')
-    print('→ Drag the slider below the chart to adjust in real time.')
 
     plt.show(block=block_window)
 

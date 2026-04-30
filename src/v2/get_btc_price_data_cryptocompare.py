@@ -6,14 +6,19 @@ import datetime as dt
 import time
 
 # ==================== CONFIGURATION ====================
-# Output file for the downloaded BTC data
-# Change this value to customize the CSV filename (supports relative or absolute paths)
-CSV_FILE = 'cryptocompare_historic_btc_price.csv'
+# Get absolute path to the directory where this script is located.
+# This ensures the data folder is ALWAYS next to the script, regardless of CWD.
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(SCRIPT_DIR, "cryptocompare_data")
+
+# Output file for the downloaded BTC data (now inside the cryptocompare_data folder)
+# The folder will be automatically created on first download.
+CSV_FILE = os.path.join(DATA_DIR, 'cryptocompare_historic_btc_price.csv')
 
 # Examples of alternative configurations:
-# CSV_FILE = 'my_custom_btc_prices.csv'
-# CSV_FILE = '/path/to/bitcoin_historical_data.csv'
-# CSV_FILE = 'data/btc_daily.csv'  # (create 'data' folder if needed)
+# CSV_FILE = os.path.join(SCRIPT_DIR, 'my_custom_btc_prices.csv')          # same folder as script
+# CSV_FILE = os.path.join(DATA_DIR, 'bitcoin_historical_data.csv')         # still inside data folder
+# CSV_FILE = '/absolute/path/to/anywhere/bitcoin_historical_data.csv'      # fully custom
 # =======================================================
 
 def download_btc_daily(years: float, end_date: dt.date = None) -> pd.DataFrame:
@@ -101,7 +106,8 @@ def load_btc_data():
     if not os.path.exists(CSV_FILE):
         raise FileNotFoundError(
             f"❌ '{CSV_FILE}' not found.\n"
-            "Please run this script first (or call get_btc_price_data()) to download and cache the BTC data."
+            f"Please run this script first (or call get_btc_price_data()) to download and cache the BTC data.\n"
+            f"Data will be saved in folder: {DATA_DIR}"
         )
     
     try:
@@ -129,7 +135,8 @@ def get_btc_price_data(force_download: bool = False) -> pd.DataFrame:
     print("Downloading fresh BTC data...")
     daily = download_full_df()
     
-    # Save cache for next time
+    # Ensure the data directory exists and save cache
+    os.makedirs(DATA_DIR, exist_ok=True)
     daily.to_csv(CSV_FILE)
     print(f"✅ Data saved to: {os.path.abspath(CSV_FILE)}")
     
@@ -138,6 +145,9 @@ def get_btc_price_data(force_download: bool = False) -> pd.DataFrame:
 
 if __name__ == "__main__":
     print("=== BTC Price Data Fetcher (CryptoCompare) ===")
+    print(f"Script location : {SCRIPT_DIR}")
+    print(f"Data folder     : {DATA_DIR}")
+    print(f"CSV file        : {CSV_FILE}")
     df = get_btc_price_data()
     print(f"\n✅ Final DataFrame ready: {len(df):,} rows")
     print(f"Date range: {df.index.min().date()} to {df.index.max().date()}")
