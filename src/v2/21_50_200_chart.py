@@ -17,6 +17,23 @@ BLOCK_WINDOW = True # Set False if you want the script to continue immediately a
 SHOW_GRID = True
 FIGURE_SIZE = (14, 10)              # (width, height) in inches
 
+# === Line colors and widths  ===
+CLOSE_COLOR = '#F7931A'
+CLOSE_WIDTH = 1.1
+
+EMA21_COLOR = '#00FFAA'
+EMA21_WIDTH = 1.3
+
+SMA50_COLOR = '#FF00FF'
+SMA50_WIDTH = 1.3
+
+SMA200_COLOR = '#4444FF'
+SMA200_WIDTH = 1.6
+
+VOLUME_COLOR = '#1E90FF'
+VOLUME_ALPHA = 0.75
+VOLUME_BAR_WIDTH = 0.9   # Width of the volume bars
+
 # ==================================================
 # END OF CONFIGURATION
 # ==================================================
@@ -27,7 +44,7 @@ def draw(block_window=BLOCK_WINDOW,
     """
     Enhanced Bitcoin chart: 21 EMA vs 50 SMA with 200 SMA long-term filter + Volume subplot.
     Now uses get_btc_price_data_cryptocompare for data consistency with other charts (like pi_bottom_top.py).
-    All major settings are controlled from the CONFIG section at the top.
+    All major settings (including the new color/width options) are controlled from the CONFIG section at the top.
     """
     # === Load and prepare data ===
     data_frame = btc_data.get_btc_price_data()
@@ -51,14 +68,14 @@ def draw(block_window=BLOCK_WINDOW,
     
     # === Price panel (top) ===
     ax1.plot(data_frame.index, data_frame['close'], 
-             label='Bitcoin Close Price', linewidth=1.1, color='#F7931A')
+             label='Bitcoin Close Price', linewidth=CLOSE_WIDTH, color=CLOSE_COLOR)
     ax1.plot(data_frame.index, data_frame['EMA21'], 
-             label='21-Day EMA', linewidth=1.3, color='#00FFAA')
+             label='21-Day EMA', linewidth=EMA21_WIDTH, color=EMA21_COLOR)
     ax1.plot(data_frame.index, data_frame['SMA50'], 
-             label='50-Day SMA', linewidth=1.3, color='#FF00FF')
+             label='50-Day SMA', linewidth=SMA50_WIDTH, color=SMA50_COLOR)
     ax1.plot(data_frame.index, data_frame['SMA200'], 
              label='200-Day SMA (Long-term Filter)', 
-             linewidth=1.6, linestyle='--', color='#4444FF')
+             linewidth=SMA200_WIDTH, linestyle='--', color=SMA200_COLOR)
     
     title = 'Bitcoin Price: 21 EMA vs 50 SMA with 200 SMA Filter'
     if log_scale:
@@ -79,7 +96,7 @@ def draw(block_window=BLOCK_WINDOW,
     
     # === Volume panel (bottom) ===
     ax2.bar(data_frame.index, data_frame['volumeto'], 
-            width=0.9, color='#1E90FF', alpha=0.75, label='USD Volume')
+            width=VOLUME_BAR_WIDTH, color=VOLUME_COLOR, alpha=VOLUME_ALPHA, label='USD Volume')
     
     ax2.set_ylabel('Volume (USD)', fontsize=12)
     if SHOW_GRID:
