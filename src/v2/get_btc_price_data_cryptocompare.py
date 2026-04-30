@@ -25,9 +25,13 @@ def _clean_btc_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     # Remove pre-trading all-zero rows
     numeric_cols = ['high', 'low', 'open', 'volumefrom', 'volumeto', 'close']
     zero_mask = (df[numeric_cols] == 0).all(axis=1)
-    if zero_mask.any():
+    removed_count = zero_mask.sum()
+
+    if removed_count > 0:
         df = df[~zero_mask].copy()
-        print(f"Removed {zero_mask.sum():,} all-zero pre-trading rows.")
+        print(f"Removed {removed_count:,} all-zero pre-trading rows.")
+    else:
+        print("No all-zero pre-trading rows found.")
 
     # Drop metadata columns (always 'direct' / empty)
     metadata_cols = ['conversionType', 'conversionSymbol']
@@ -47,6 +51,9 @@ def download_btc_daily(years: float, end_date: dt.date = None) -> pd.DataFrame:
     Downloads approximately 'years' worth of daily BTC/USD data from CryptoCompare,
     ending on or before 'end_date' (defaults to today).
     Handles chunking in 2000-day limits.
+
+    NOTE: Cleaning is now performed only once at the very end inside download_full_df()
+          to keep logs clean and avoid redundant processing.
     """
     if end_date is None:
         end_date = dt.date.today()
@@ -85,10 +92,7 @@ def download_btc_daily(years: float, end_date: dt.date = None) -> pd.DataFrame:
     df.set_index('time', inplace=True)
     df = df.sort_index()
 
-    # === CLEANING APPLIED TO EVERY CHUNK ===
-    df = _clean_btc_dataframe(df)
-
-    print(f"Downloaded and cleaned {len(df)} days of data.")
+    print(f"Downloaded {len(df):,} days of raw data (cleaning will happen after concatenation).")
     return df
 
 
@@ -117,8 +121,12 @@ def download_full_df():
 
     full_df = full_df.sort_index()
 
-    # === FINAL CLEANING (safety net) ===
+    # === FINAL CLEANING — DONE ONLY ONCE ===
     full_df = _clean_btc_dataframe(full_df)
+
+    # Extra safety: guard against any accidental date overlap between batches
+    if not full_df.empty:
+        full_df = full_df[~full_df.index.duplicated(keep='first')]
 
     print(f"\nFinal cleaned DataFrame: {len(full_df):,} rows "
           f"from {full_df.index.min().date()} to {full_df.index.max().date()}")
