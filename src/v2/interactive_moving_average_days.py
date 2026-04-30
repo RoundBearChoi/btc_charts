@@ -9,7 +9,7 @@ from get_btc_price_data_cryptocompare import get_btc_price_data   # ← now uses
 # All changes here take effect immediately on the next run.
 
 MIN_DAYS       = 3      # Minimum value the slider can reach (leftmost position)
-MAX_DAYS       = 160*7    # Maximum value the slider can reach (rightmost position)
+MAX_DAYS       = 200*7    # Maximum value the slider can reach (rightmost position)
 
 # ── This is the one you asked about ──
 # DEFAULT_DAYS sets the INITIAL POSITION of the small red indicator line/handle
