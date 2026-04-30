@@ -20,7 +20,7 @@ def draw(block_window):
     # === Reliable FRED CSV endpoint ===
     m2_url = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=M2SL"
     
-    print("Downloading latest US M2 data from FRED (CSV)...")
+    print("\nDownloading latest US M2 data from FRED (CSV)...")
     response = requests.get(m2_url)
     if response.status_code != 200:
         print(f"❌ Failed to download M2 data (status {response.status_code})")
@@ -60,7 +60,7 @@ def draw(block_window):
     ax2.grid(False)
 
     plt.tight_layout()
-    print('✅ Drawing US M2 (bottom) vs BTC Price (top) — using latest FRED CSV data')
+    print('Drawing US M2 (bottom) vs BTC Price (top) — using latest FRED CSV data')
     plt.show(block=block_window)
 
 

@@ -61,7 +61,7 @@ def __plot(data_frame, block_window):
 
     plt.title('Monthly RSI vs Next Halving')
 
-    print('Drawing Monthly RSI vs Next Halving..')
+    print('\nDrawing Monthly RSI vs Next Halving..')
 
     plt.show(block=block_window)
 

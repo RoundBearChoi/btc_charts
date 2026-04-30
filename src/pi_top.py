@@ -32,7 +32,7 @@ def draw(block_window):
     plt.ylabel('Price (USD)')
     plt.legend()
 
-    print('Drawing Pi Top..')
+    print('\nDrawing Pi Top..')
 
     plt.show(block=block_window)
 

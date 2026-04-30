@@ -46,7 +46,7 @@ def draw(block_window):
     # Adjust layout to prevent overlap
     plt.tight_layout()
 
-    print('Drawing 50-Week EMA vs Weekly RSI (with RSI below)..')
+    print('\nDrawing 50-Week EMA vs Weekly RSI (with RSI below)..')
     plt.show(block=block_window)
 
 

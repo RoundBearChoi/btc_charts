@@ -31,7 +31,7 @@ def draw(block_window):
     axis = plt.gca()
     axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
 
-    print('Drawing 21EMA vs 50SMA..')
+    print('\nDrawing 21EMA vs 50SMA..')
 
     plt.show(block=block_window)
 

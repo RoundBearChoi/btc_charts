@@ -5,8 +5,16 @@ import math
 import datetime as dt
 import time
 
-CSV_FILE = 'btc_data.csv'
+# ==================== CONFIGURATION ====================
+# Output file for the downloaded BTC data
+# Change this value to customize the CSV filename (supports relative or absolute paths)
+CSV_FILE = 'cryptocompare_historic_btc_price.csv'
 
+# Examples of alternative configurations:
+# CSV_FILE = 'my_custom_btc_prices.csv'
+# CSV_FILE = '/path/to/bitcoin_historical_data.csv'
+# CSV_FILE = 'data/btc_daily.csv'  # (create 'data' folder if needed)
+# =======================================================
 
 def download_btc_daily(years: float, end_date: dt.date = None) -> pd.DataFrame:
     """
@@ -123,7 +131,7 @@ def get_btc_price_data(force_download: bool = False) -> pd.DataFrame:
     
     # Save cache for next time
     daily.to_csv(CSV_FILE)
-    print(f"✅ Data cached to: {os.path.abspath(CSV_FILE)}")
+    print(f"✅ Data saved to: {os.path.abspath(CSV_FILE)}")
     
     return daily
 

@@ -27,7 +27,7 @@ def draw(weeks, block_window):
     plt.ylabel('Price (USD)')
     plt.legend()
 
-    print('Drawing Weeks Moving Average..')
+    print('\nDrawing Weeks Moving Average..')
 
     plt.show(block=block_window)
 

@@ -32,7 +32,7 @@ def draw(block_window):
     plt.ylabel('Price (USD)')
     plt.legend(['BTC Price', '471 MA * 0.475', '150 EMA * 0.475'])
 
-    print('Drawing Pi Bottom..')
+    print('\nDrawing Pi Bottom..')
 
     plt.show(block=block_window)
 
