@@ -6,12 +6,19 @@ from btc_data_loader import load_btc_data   # ← shared loader (unchanged)
 
 # ==================== CONFIG SECTION ====================
 # ←←← EDIT THESE VALUES TO CUSTOMIZE THE SLIDER ←←←
-MIN_DAYS       = 3      # Minimum value the slider can reach
-MAX_DAYS       = 160*7    # Maximum value the slider can reach
-DEFAULT_DAYS   = 50     # Starting value when the chart first opens
+# All changes here take effect immediately on the next run.
 
-# Optional: you can also change these if you want
-FIGURE_SIZE    = (12, 8)   # Width, height in inches (taller to fit slider comfortably)
+MIN_DAYS       = 3      # Minimum value the slider can reach (leftmost position)
+MAX_DAYS       = 160*7    # Maximum value the slider can reach (rightmost position)
+
+# ── This is the one you asked about ──
+# DEFAULT_DAYS sets the INITIAL POSITION of the small red indicator line/handle
+# on the slider bar when the chart first opens. It also becomes the starting
+# moving-average period.
+DEFAULT_DAYS   = 360     # Starting value (red line starts here)
+
+# Optional visual / behavior tweaks (rarely need changing)
+FIGURE_SIZE    = (12, 8)   # Width × Height in inches (taller = more room for slider)
 BLOCK_WINDOW   = True      # True = script waits until you close the plot window
 # ======================================================
 
@@ -36,7 +43,7 @@ def draw(initial_days=DEFAULT_DAYS,
     # Plot Bitcoin price (unchanged)
     price_line, = ax.plot(data_frame['close'], label='Bitcoin Price', linewidth=1.2)
 
-    # Initial moving average
+    # Initial moving average (starts at DEFAULT_DAYS)
     ma_series = data_frame['close'].rolling(window=initial_days).mean()
     ma_line, = ax.plot(ma_series,
                        label=f'{initial_days}-Day Moving Average',
@@ -51,15 +58,15 @@ def draw(initial_days=DEFAULT_DAYS,
     plt.xlabel('Time (data points)')
     plt.legend()
 
-    # === Real-time Slider (now driven by CONFIG values) ===
+    # === Real-time Slider (now with even clearer config mapping) ===
     slider_ax = plt.axes([0.20, 0.02, 0.60, 0.03], facecolor='lightgray')
     days_slider = Slider(
         ax=slider_ax,
         label='Moving Average (days)',
         valmin=min_days,
         valmax=max_days,
-        valinit=initial_days,
-        valstep=1,           # keep everything as whole days
+        valinit=initial_days,        # ← This is what positions the red line at start
+        valstep=1,
         valfmt='%d days'
     )
 
@@ -70,17 +77,18 @@ def draw(initial_days=DEFAULT_DAYS,
         ma_series = data_frame['close'].rolling(window=days).mean()
         ma_line.set_ydata(ma_series)
         ma_line.set_label(f'{days}-Day Moving Average')
-        ax.legend()                  # refresh legend with correct label
+        ax.legend()                  # refresh legend
         fig.canvas.draw_idle()       # efficient redraw
 
     days_slider.on_changed(update)
 
     # Friendly console output
-    print(f'Drawing interactive Moving Average (range: {min_days}-{max_days} days, starting at {initial_days})...')
+    print(f'Drawing interactive Moving Average (range: {min_days}-{max_days} days)')
+    print(f'→ Red indicator line starts at {initial_days} days (see CONFIG SECTION)')
     print('→ Drag the slider below the chart to adjust in real time.')
 
     plt.show(block=block_window)
 
 
 if __name__ == '__main__':
-    draw()   # Uses the CONFIG values by default — no arguments needed
+    draw()   # Uses ALL values from the CONFIG SECTION above
