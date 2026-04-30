@@ -1,0 +1,41 @@
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import math
+
+import get_btc_price_data_cryptocompare as btc_data
+
+
+def draw(block_window):
+    # === Load data using the new unified data module ===
+    # (No more dependency on deleted btc_data_loader.py)
+    data_frame = btc_data.get_btc_price_data()
+
+    # === Original plotting logic (100% unchanged) ===
+    plt.figure(figsize=(12, 6))  # A new window
+
+    plt.style.use('fast')
+    plt.grid(False)
+
+    slow = 365
+    quick = math.floor(slow / 3.14159)
+    data_frame[str(slow) + '_MA * 2'] = data_frame['close'].rolling(window=slow).mean() * 2
+    data_frame[str(quick) + '_MA'] = data_frame['close'].rolling(window=quick).mean()
+
+    plt.plot(data_frame['close'], label='BTC Price', linewidth=0.4)
+    plt.plot(data_frame[str(slow) + '_MA * 2'], label=str(slow) + '-day MA * 2', linewidth=1)
+    plt.plot(data_frame[str(quick) + '_MA'], label=str(quick) + '-day MA', linewidth=1)
+
+    axis = plt.gca()
+    axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+
+    plt.title('Pi Top')
+    plt.ylabel('Price (USD)')
+    plt.legend()
+
+    print('\nDrawing Pi Top..')
+
+    plt.show(block=block_window)
+
+
+if __name__ == '__main__':
+    draw(True)
