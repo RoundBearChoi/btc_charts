@@ -17,7 +17,6 @@ def run():
     print('')
     print('Hi.')
     
-    # === Draw graphs (still passing data for now) ===
     pi_top.draw(False)
     pi_bottom.draw(False)
     moving_average_weeks.draw(140, False)
