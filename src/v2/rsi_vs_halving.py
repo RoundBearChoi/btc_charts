@@ -1,0 +1,70 @@
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import dateutil.relativedelta as rel
+import pandas
+import numpy
+
+import get_btc_price_data_cryptocompare as btc_data
+
+
+def draw(block_window):
+    # === Load data using the new unified data module ===
+    # (No more dependency on deleted btc_data_loader.py)
+    data_frame = btc_data.get_btc_price_data()
+
+    # === Original draw logic (100% unchanged) ===
+    plt.figure(figsize=(12, 6))  # A new window
+
+    plt.style.use('fast')
+    plt.grid(False)
+
+    data_frame = data_frame.resample('ME').last().asfreq('ME')
+
+    # Calculate RSI
+    delta = data_frame['close'].diff()
+    up = delta.clip(lower=0)
+    down = -1*delta.clip(upper=0)
+    ema_up = up.ewm(com=13, adjust=False).mean()
+    ema_down = down.ewm(com=13, adjust=False).mean()
+    rs = ema_up/ema_down
+
+    data_frame['RSI'] = 100 - (100/(1 + rs))
+
+    __plot(data_frame, block_window)
+
+
+def __plot(data_frame, block_window):
+    # ========== needs to be updated manually ========== #
+    halving_dates = ['2012-11-28', '2016-07-09', '2020-05-11', '2024-04-20', '2028-04-11']
+    halving_dates = pandas.to_datetime(halving_dates)
+    halving_dates = pandas.DatetimeIndex(halving_dates)
+
+    # plot RSI
+    norm = plt.Normalize(0, 50)
+
+    for i in numpy.arange(1, len(data_frame)):
+        x_values = data_frame.index[i - 1:i + 1]
+        y_values = data_frame['RSI'][i - 1:i + 1]
+
+        months_left = None
+
+        for halving_date in halving_dates:
+            if x_values[1] < halving_date:
+                diff = rel.relativedelta(halving_date, x_values[0])
+                months_left = diff.years * 12 + diff.months
+                break
+
+        cmap = colors.LinearSegmentedColormap.from_list('my_cmap', ['lightgreen', 'red'])
+        color_value = cmap(norm(months_left))
+
+        plt.plot(x_values, y_values, color=color_value)
+
+    plt.title('Monthly RSI vs Next Halving')
+
+    print('\nDrawing Monthly RSI vs Next Halving..')
+
+    plt.show(block=block_window)
+
+
+if __name__ == '__main__':   # ← Keeps standalone runs working
+    draw(True)   # True = block until you close the plot window
