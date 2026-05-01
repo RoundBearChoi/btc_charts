@@ -8,32 +8,34 @@ import time
 # ==================== CONFIGURATION ====================
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SCRIPT_DIR, "cryptocompare_data")
-
-CSV_FILE = os.path.join(DATA_DIR, 'cryptocompare_historic_btc_price.csv')
 # =======================================================
 
-def _clean_btc_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+def _get_cache_file_path(coin: str) -> str:
+    """Return the correct CSV path for a coin (BTC keeps original name)."""
+    if coin.upper() == "BTC":
+        return os.path.join(DATA_DIR, 'cryptocompare_historic_btc_price.csv')
+    return os.path.join(DATA_DIR, f'cryptocompare_historic_{coin.lower()}_price.csv')
+
+
+def _clean_price_dataframe(df: pd.DataFrame, coin: str = "BTC") -> pd.DataFrame:
     """
-    Clean BTC DataFrame:
+    Clean price DataFrame:
       - Remove rows where ALL price/volume columns are zero (pre-trading artifacts).
-      - Drop unnecessary API metadata columns (always constant).
-    Returns the cleaned DataFrame.
+      - Drop unnecessary API metadata columns.
     """
     if df.empty:
         return df
 
-    # Remove pre-trading all-zero rows
     numeric_cols = ['high', 'low', 'open', 'volumefrom', 'volumeto', 'close']
     zero_mask = (df[numeric_cols] == 0).all(axis=1)
     removed_count = zero_mask.sum()
 
     if removed_count > 0:
         df = df[~zero_mask].copy()
-        print(f"Removed {removed_count:,} all-zero pre-trading rows.")
+        print(f"Removed {removed_count:,} all-zero pre-trading rows for {coin}.")
     else:
-        print("No all-zero pre-trading rows found.")
+        print(f"No all-zero pre-trading rows found for {coin}.")
 
-    # Drop metadata columns (always 'direct' / empty)
     metadata_cols = ['conversionType', 'conversionSymbol']
     dropped = []
     for col in metadata_cols:
@@ -41,25 +43,18 @@ def _clean_btc_dataframe(df: pd.DataFrame) -> pd.DataFrame:
             df = df.drop(columns=[col])
             dropped.append(col)
     if dropped:
-        print(f"Dropped metadata columns: {', '.join(dropped)}")
+        print(f"Dropped metadata columns for {coin}: {', '.join(dropped)}")
 
     return df
 
 
-def download_btc_daily(years: float, end_date: dt.date = None) -> pd.DataFrame:
-    """
-    Downloads approximately 'years' worth of daily BTC/USD data from CryptoCompare,
-    ending on or before 'end_date' (defaults to today).
-    Handles chunking in 2000-day limits.
-
-    NOTE: Cleaning is now performed only once at the very end inside download_full_df()
-          to keep logs clean and avoid redundant processing.
-    """
+def _download_historic_daily(coin: str, currency: str, years: float, end_date: dt.date = None) -> pd.DataFrame:
+    """Core download function (chunked to respect CryptoCompare 2000-day limit)."""
     if end_date is None:
         end_date = dt.date.today()
     
     total_days = math.ceil(years * 365.25)
-    print(f"\nDownloading ~{years} years ({total_days} days) of BTC data ending on {end_date}...")
+    print(f"\nDownloading ~{years} years ({total_days} days) of {coin}/{currency} data ending on {end_date}...")
 
     data = []
     days_per_chunk = 2000
@@ -68,23 +63,22 @@ def download_btc_daily(years: float, end_date: dt.date = None) -> pd.DataFrame:
 
     current_end = end_date
 
-    # Full chunks of 2000 days
     for i in range(num_full_chunks):
         chunk_data = cryptocompare.get_historical_price_day(
-            'BTC', currency='USD', limit=days_per_chunk, toTs=current_end
+            coin, currency=currency, limit=days_per_chunk, toTs=current_end
         )
         data.extend(chunk_data)
         current_end = current_end - dt.timedelta(days=days_per_chunk)
+        time.sleep(0.5)
 
-    # Remaining days
     if remaining_days > 0:
         chunk_data = cryptocompare.get_historical_price_day(
-            'BTC', currency='USD', limit=remaining_days, toTs=current_end
+            coin, currency=currency, limit=remaining_days, toTs=current_end
         )
         data.extend(chunk_data)
 
     if not data:
-        print("No data returned.")
+        print(f"No data returned for {coin}.")
         return pd.DataFrame()
 
     df = pd.DataFrame(data)
@@ -92,26 +86,26 @@ def download_btc_daily(years: float, end_date: dt.date = None) -> pd.DataFrame:
     df.set_index('time', inplace=True)
     df = df.sort_index()
 
-    print(f"Downloaded {len(df):,} days of raw data (cleaning will happen after concatenation).")
+    print(f"Downloaded {len(df):,} days of raw {coin} data.")
     return df
 
 
-def download_full_df():
-    """Download full ~16 years of data in two batches (most recent 8 years + older 8 years)."""
+def _download_full_historic_df(coin: str, currency: str = "USD", years_per_batch: float = 8.0) -> pd.DataFrame:
+    """Download full available history (optimized for long-history BTC vs short-history FARTCOIN)."""
+    print(f"\n=== Downloading full history for {coin}/{currency} ===")
     today = dt.date.today()
 
-    df_recent = download_btc_daily(8.0)  # Most recent ~8 years
+    df_recent = _download_historic_daily(coin, currency, years_per_batch)
 
-    time.sleep(1)  # Be gentle on the API
+    time.sleep(1)
 
-    # Older batch ends one day before the oldest date in recent data
     if not df_recent.empty:
         older_end_date = df_recent.index.min().date() - dt.timedelta(days=1)
-        df_older = download_btc_daily(8.0, end_date=older_end_date)
+        df_older = _download_historic_daily(coin, currency, years_per_batch, end_date=older_end_date)
     else:
         df_older = pd.DataFrame()
 
-    # Combine (older first)
+    # Combine
     if not df_older.empty and not df_recent.empty:
         full_df = pd.concat([df_older, df_recent])
     elif not df_older.empty:
@@ -121,64 +115,97 @@ def download_full_df():
 
     full_df = full_df.sort_index()
 
-    # === FINAL CLEANING — DONE ONLY ONCE ===
-    full_df = _clean_btc_dataframe(full_df)
+    # Final cleaning (once)
+    full_df = _clean_price_dataframe(full_df, coin=coin)
 
-    # Extra safety: guard against any accidental date overlap between batches
+    # Deduplicate any accidental overlap
     if not full_df.empty:
         full_df = full_df[~full_df.index.duplicated(keep='first')]
 
-    print(f"\nFinal cleaned DataFrame: {len(full_df):,} rows "
-          f"from {full_df.index.min().date()} to {full_df.index.max().date()}")
+    if not full_df.empty:
+        print(f"\nFinal cleaned {coin} DataFrame: {len(full_df):,} rows "
+              f"from {full_df.index.min().date()} to {full_df.index.max().date()}")
+    else:
+        print(f"\nNo data available for {coin}.")
 
     return full_df
 
 
-def load_btc_data():
-    """Load BTC data from the cached CSV file."""
+def _load_price_data(coin: str) -> pd.DataFrame:
+    """Load cached data for any coin."""
+    CSV_FILE = _get_cache_file_path(coin)
     if not os.path.exists(CSV_FILE):
         raise FileNotFoundError(
-            f"❌ '{CSV_FILE}' not found.\n"
-            f"Please run this script first (or call get_btc_price_data()) to download and cache the BTC data.\n"
-            f"Data will be saved in folder: {DATA_DIR}"
+            f"❌ '{CSV_FILE}' not found for {coin}.\n"
+            f"Please run get_{coin.lower()}_price_data() first to download and cache the data."
         )
     
-    try:
-        print(f"\nLoading BTC data from {CSV_FILE}...")
-        df = pd.read_csv(CSV_FILE, index_col=0, parse_dates=True)
-        print(f"Loaded {len(df):,} rows (latest date: {df.index.max().date()})")
-        return df
-    except Exception as e:
-        raise RuntimeError(f"❌ Failed to load {CSV_FILE}: {e}") from e
+    print(f"\nLoading {coin} data from {CSV_FILE}...")
+    df = pd.read_csv(CSV_FILE, index_col=0, parse_dates=True)
+    print(f"Loaded {len(df):,} rows for {coin} (latest date: {df.index.max().date()})")
+    return df
 
+
+# ==================== PUBLIC API ====================
 
 def get_btc_price_data(force_download: bool = False) -> pd.DataFrame:
-    """
-    Main entry point: returns the full cleaned BTC daily price DataFrame.
-    """
+    """Classic function — exactly the same behavior as your original script."""
+    coin = "BTC"
+    CSV_FILE = _get_cache_file_path(coin)
+
     if not force_download and os.path.exists(CSV_FILE):
         try:
-            return load_btc_data()
+            return _load_price_data(coin)
         except Exception as e:
-            print(f"⚠️  {e}\nDownloading fresh data instead.")
-    
+            print(f"⚠️  {e}\nDownloading fresh BTC data instead.")
+
     print("Downloading fresh BTC data...")
-    daily = download_full_df()
+    daily = _download_full_historic_df(coin, years_per_batch=8.0)
     
-    # Ensure directory exists and save clean cache
     os.makedirs(DATA_DIR, exist_ok=True)
     daily.to_csv(CSV_FILE)
-    print(f"✅ Clean data saved to: {os.path.abspath(CSV_FILE)}")
+    print(f"✅ Clean BTC data saved to: {os.path.abspath(CSV_FILE)}")
     
     return daily
 
 
+def get_fartcoin_price_data(force_download: bool = False) -> pd.DataFrame:
+    """New function for FARTCOIN — fetches as far back as possible (short history)."""
+    coin = "FARTCOIN"
+    CSV_FILE = _get_cache_file_path(coin)
+
+    if not force_download and os.path.exists(CSV_FILE):
+        try:
+            return _load_price_data(coin)
+        except Exception as e:
+            print(f"⚠️  {e}\nDownloading fresh FARTCOIN data instead.")
+
+    print("Downloading fresh FARTCOIN data (as far back as available)...")
+    # Smaller batch for new coins = faster and sufficient
+    daily = _download_full_historic_df(coin, years_per_batch=5.0)
+    
+    os.makedirs(DATA_DIR, exist_ok=True)
+    daily.to_csv(CSV_FILE)
+    print(f"✅ Clean FARTCOIN data saved to: {os.path.abspath(CSV_FILE)}")
+    
+    return daily
+
+
+# ==================== DEMO / CLI ====================
 if __name__ == "__main__":
-    print("=== BTC Price Data Fetcher (CryptoCompare) ===")
+    print("=== Crypto Price Data Fetcher (CryptoCompare) ===")
     print(f"Script location : {SCRIPT_DIR}")
-    print(f"Data folder     : {DATA_DIR}")
-    print(f"CSV file        : {CSV_FILE}")
-    df = get_btc_price_data()
-    print(f"\nFinal DataFrame ready: {len(df):,} rows")
-    print(f"Date range: {df.index.min().date()} to {df.index.max().date()}")
-    print(f"Cache file: {CSV_FILE}")
+    print(f"Data folder     : {DATA_DIR}\n")
+
+    print("--- Fetching BTC (classic function) ---")
+    df_btc = get_btc_price_data()
+    print(f"\nBTC ready: {len(df_btc):,} rows | {df_btc.index.min().date()} to {df_btc.index.max().date()}")
+
+    print("\n--- Fetching FARTCOIN ---")
+    df_fart = get_fartcoin_price_data()
+    if not df_fart.empty:
+        print(f"FARTCOIN ready: {len(df_fart):,} rows | {df_fart.index.min().date()} to {df_fart.index.max().date()}")
+    else:
+        print("FARTCOIN: No data retrieved (check listing on CryptoCompare).")
+
+    print(f"\nAll cache files are in: {DATA_DIR}")
