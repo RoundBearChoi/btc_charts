@@ -40,24 +40,14 @@ VOLUME_BAR_WIDTH = 0.9
 
 def draw(block_window=BLOCK_WINDOW, 
          log_scale=LOG_SCALE, 
-         days_back=DAYS_BACK,
-         coin: str = "BTC"):
+         days_back=DAYS_BACK):
     """
-    Enhanced chart: 21 EMA vs 50 SMA with 200 SMA long-term filter + Volume subplot.
-    Now supports both BTC and FARTCOIN dynamically via numbered menu prompt.
+    Enhanced Bitcoin chart: 21 EMA vs 50 SMA with 200 SMA long-term filter + Volume subplot.
+    Now uses get_price_data_cryptocompare for data consistency with other charts (like pi_bottom_top.py).
+    All major settings (including the new color/width options) are controlled from the CONFIG section at the top.
     """
-    # === Load data based on selected coin ===
-    coin_upper = coin.upper().strip()
-    if coin_upper == "BTC":
-        data_frame = price_data.get_btc_price_data()
-        coin_name = "Bitcoin"
-    elif coin_upper == "FARTCOIN":
-        data_frame = price_data.get_fartcoin_price_data()
-        coin_name = "FARTCOIN"
-    else:
-        print(f"⚠️  Unsupported coin '{coin}'. Defaulting to BTC.")
-        data_frame = price_data.get_btc_price_data()
-        coin_name = "Bitcoin"
+    # === Load and prepare data ===
+    data_frame = price_data.get_btc_price_data()
     
     # === Optional recent-data filter (reliable slicing) ===
     if days_back is not None:
@@ -78,7 +68,7 @@ def draw(block_window=BLOCK_WINDOW,
     
     # === Price panel (top) ===
     ax1.plot(data_frame.index, data_frame['close'], 
-             label=f'{coin_name} Close Price', linewidth=CLOSE_WIDTH, color=CLOSE_COLOR)
+             label='Bitcoin Close Price', linewidth=CLOSE_WIDTH, color=CLOSE_COLOR)
     ax1.plot(data_frame.index, data_frame['EMA21'], 
              label='21-Day EMA', linewidth=EMA21_WIDTH, color=EMA21_COLOR)
     ax1.plot(data_frame.index, data_frame['SMA50'], 
@@ -87,7 +77,7 @@ def draw(block_window=BLOCK_WINDOW,
              label='200-Day SMA (Long-term Filter)', 
              linewidth=SMA200_WIDTH, linestyle='--', color=SMA200_COLOR)
     
-    title = f'{coin_name} Price: 21 EMA vs 50 SMA with 200 SMA Filter'
+    title = 'Bitcoin Price: 21 EMA vs 50 SMA with 200 SMA Filter'
     if log_scale:
         ax1.set_yscale('log')
         title += ' (Log Scale)'
@@ -131,26 +121,11 @@ def draw(block_window=BLOCK_WINDOW,
     
     plt.tight_layout()
     
-    print(f'\nDrawing {coin_name} 21/50/200 + Volume chart '
+    print(f'\nDrawing BTC 21/50/200 + Volume chart '
           f'(log_scale={log_scale}, days_back={days_back})...')
     plt.show(block=block_window)
 
 
 if __name__ == '__main__':
-    print("=== Enhanced 21/50/200 Moving Average Chart ===")
-    print("\nChoose a coin to chart:")
-    print("1. BTC")
-    print("2. FARTCOIN")
-    
-    choice = input("\nEnter your choice (1 or 2): ").strip()
-    
-    if choice == "1":
-        coin_choice = "BTC"
-    elif choice == "2":
-        coin_choice = "FARTCOIN"
-    else:
-        print(f"⚠️  Invalid choice '{choice}'. Defaulting to BTC.")
-        coin_choice = "BTC"
-    
-    print(f"✅ Generating chart for {coin_choice}...")
-    draw(coin=coin_choice)
+    draw()
+
