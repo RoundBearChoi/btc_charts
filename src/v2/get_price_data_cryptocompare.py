@@ -148,14 +148,7 @@ def _load_price_data(coin: str) -> pd.DataFrame:
 # ==================== PUBLIC API ====================
 
 def get_btc_price_data(force_download: bool = False) -> pd.DataFrame:
-    """Get BTC price data from cache or download fresh full history.
-    
-    NEW BEHAVIOR:
-      - If cached data exists and force_download=False → load it first (shows dates),
-        then **prompt the user** whether to download fresh full history.
-      - Only downloads if user explicitly chooses yes or no cache exists.
-      - force_download=True skips prompt and forces fresh download (original behavior).
-    """
+    """Get BTC price data from cache or download fresh full history."""
     coin = "BTC"
     CSV_FILE = _get_cache_file_path(coin)
 
