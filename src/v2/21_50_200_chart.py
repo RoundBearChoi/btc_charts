@@ -18,21 +18,21 @@ SHOW_GRID = True
 FIGURE_SIZE = (14, 10)              # (width, height) in inches
 
 # === Line colors and widths  ===
-CLOSE_COLOR = 'orange'
-CLOSE_WIDTH = 0.8
+CLOSE_COLOR = '#9EB3DB'
+CLOSE_WIDTH = 0.9
 
-EMA21_COLOR = 'green'
+EMA21_COLOR = '#E15FC3' # shorter term
 EMA21_WIDTH = 1.3
 
-SMA50_COLOR = '#FF00FF'
+SMA50_COLOR = '#00D118' # longer term
 SMA50_WIDTH = 1.3
 
-SMA200_COLOR = 'red'
+SMA200_COLOR = '#C80C01' # really long term
 SMA200_WIDTH = 1.6
 
-VOLUME_COLOR = '#1E90FF'
+VOLUME_COLOR = '#8F8C57'
 VOLUME_ALPHA = 0.75
-VOLUME_BAR_WIDTH = 0.9   # Width of the volume bars
+VOLUME_BAR_WIDTH = 0.9
 
 # ==================================================
 # END OF CONFIGURATION
