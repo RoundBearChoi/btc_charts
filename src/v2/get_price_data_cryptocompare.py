@@ -91,7 +91,6 @@ def _download_historic_daily(coin: str, currency: str, years: float, end_date: d
 
 
 def _download_full_historic_df(coin: str, currency: str = "USD", years_per_batch: float = 8.0) -> pd.DataFrame:
-    """Download full available history (optimized for long-history BTC vs short-history FARTCOIN)."""
     print(f"\n=== Downloading full history for {coin}/{currency} ===")
     today = dt.date.today()
 
@@ -149,44 +148,41 @@ def _load_price_data(coin: str) -> pd.DataFrame:
 # ==================== PUBLIC API ====================
 
 def get_btc_price_data(force_download: bool = False) -> pd.DataFrame:
-    """Classic function — exactly the same behavior as your original script."""
+    """Get BTC price data from cache or download fresh full history.
+    
+    NEW BEHAVIOR:
+      - If cached data exists and force_download=False → load it first (shows dates),
+        then **prompt the user** whether to download fresh full history.
+      - Only downloads if user explicitly chooses yes or no cache exists.
+      - force_download=True skips prompt and forces fresh download (original behavior).
+    """
     coin = "BTC"
     CSV_FILE = _get_cache_file_path(coin)
 
     if not force_download and os.path.exists(CSV_FILE):
         try:
-            return _load_price_data(coin)
+            print("\n📁 Existing cached BTC data detected.")
+            # Load once to show user the current state (dates, row count)
+            df_cached = _load_price_data(coin)
+            
+            print(f"\nCurrent cache covers: {df_cached.index.min().date()} → {df_cached.index.max().date()}")
+            response = input("\nDownload fresh full history from CryptoCompare? (y/n): ").strip().lower()
+            
+            if response not in ['y', 'yes']:
+                print("Using existing cached data (no download performed).")
+                return df_cached
+            else:
+                print("User chose to download fresh full history...")
         except Exception as e:
             print(f"⚠️  {e}\nDownloading fresh BTC data instead.")
 
-    print("Downloading fresh BTC data...")
+    # === If we reach here: no cache, force_download=True, or user said yes ===
+    print("\nStarting fresh BTC data download...")
     daily = _download_full_historic_df(coin, years_per_batch=8.0)
     
     os.makedirs(DATA_DIR, exist_ok=True)
     daily.to_csv(CSV_FILE)
     print(f"✅ Clean BTC data saved to: {os.path.abspath(CSV_FILE)}")
-    
-    return daily
-
-
-def get_fartcoin_price_data(force_download: bool = False) -> pd.DataFrame:
-    """New function for FARTCOIN — fetches as far back as possible (short history)."""
-    coin = "FARTCOIN"
-    CSV_FILE = _get_cache_file_path(coin)
-
-    if not force_download and os.path.exists(CSV_FILE):
-        try:
-            return _load_price_data(coin)
-        except Exception as e:
-            print(f"⚠️  {e}\nDownloading fresh FARTCOIN data instead.")
-
-    print("Downloading fresh FARTCOIN data (as far back as available)...")
-    # Smaller batch for new coins = faster and sufficient
-    daily = _download_full_historic_df(coin, years_per_batch=5.0)
-    
-    os.makedirs(DATA_DIR, exist_ok=True)
-    daily.to_csv(CSV_FILE)
-    print(f"✅ Clean FARTCOIN data saved to: {os.path.abspath(CSV_FILE)}")
     
     return daily
 
@@ -197,15 +193,8 @@ if __name__ == "__main__":
     print(f"Script location : {SCRIPT_DIR}")
     print(f"Data folder     : {DATA_DIR}\n")
 
-    print("--- Fetching BTC (classic function) ---")
-    df_btc = get_btc_price_data()
+    print("--- Fetching BTC price ---")
+    df_btc = get_btc_price_data()          # ← will now prompt if cache exists
     print(f"\nBTC ready: {len(df_btc):,} rows | {df_btc.index.min().date()} to {df_btc.index.max().date()}")
-
-    print("\n--- Fetching FARTCOIN ---")
-    df_fart = get_fartcoin_price_data()
-    if not df_fart.empty:
-        print(f"FARTCOIN ready: {len(df_fart):,} rows | {df_fart.index.min().date()} to {df_fart.index.max().date()}")
-    else:
-        print("FARTCOIN: No data retrieved (check listing on CryptoCompare).")
 
     print(f"\nAll cache files are in: {DATA_DIR}")
