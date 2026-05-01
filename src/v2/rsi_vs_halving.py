@@ -4,13 +4,12 @@ import dateutil.relativedelta as rel
 import pandas
 import numpy
 
-import get_btc_price_data_cryptocompare as btc_data
+import get_price_data_cryptocompare as price_data
 
 
 def draw(block_window):
     # === Load data using the new unified data module ===
-    # (No more dependency on deleted btc_data_loader.py)
-    data_frame = btc_data.get_btc_price_data()
+    data_frame = price_data.get_btc_price_data()
 
     # === Original draw logic (100% unchanged) ===
     plt.figure(figsize=(12, 6))  # A new window

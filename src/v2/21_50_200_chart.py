@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
 import pandas as pd
-import get_btc_price_data_cryptocompare as btc_data
+import get_price_data_cryptocompare as price_data
 
 # ==================================================
 # CONFIGURATION - Edit these values as needed
@@ -43,11 +43,11 @@ def draw(block_window=BLOCK_WINDOW,
          days_back=DAYS_BACK):
     """
     Enhanced Bitcoin chart: 21 EMA vs 50 SMA with 200 SMA long-term filter + Volume subplot.
-    Now uses get_btc_price_data_cryptocompare for data consistency with other charts (like pi_bottom_top.py).
+    Now uses get_price_data_cryptocompare for data consistency with other charts (like pi_bottom_top.py).
     All major settings (including the new color/width options) are controlled from the CONFIG section at the top.
     """
     # === Load and prepare data ===
-    data_frame = btc_data.get_btc_price_data()
+    data_frame = price_data.get_btc_price_data()
     
     # === Optional recent-data filter (reliable slicing) ===
     if days_back is not None:

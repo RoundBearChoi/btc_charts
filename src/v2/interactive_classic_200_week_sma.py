@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from matplotlib.widgets import Slider
 import pandas as pd
-from get_btc_price_data_cryptocompare import get_btc_price_data   # ← your existing fetcher
+from get_price_data_cryptocompare import get_btc_price_data   # ← your existing fetcher
 
 
 # ==================== CONFIG SECTION ====================

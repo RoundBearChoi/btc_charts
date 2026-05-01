@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
-import get_btc_price_data_cryptocompare as btc_data
+import get_price_data_cryptocompare as price_data
 
 
 # ========================== CONFIG ==========================
@@ -44,7 +44,7 @@ DROP_EARLY_NANS = False
 
 
 def draw(block_window):
-    data_frame = btc_data.get_btc_price_data()
+    data_frame = price_data.get_btc_price_data()
 
     # === Pi Cycle Bottom Indicator ===
     data_frame['471_SMA_bottom'] = data_frame['close'].rolling(window=471).mean() * PI_BOTTOM_FACTOR
