@@ -187,7 +187,7 @@ if __name__ == "__main__":
     print(f"Data folder     : {DATA_DIR}\n")
 
     print("--- Fetching BTC price ---")
-    df_btc = get_btc_price_data()          # ← will now prompt if cache exists
+    df_btc = get_btc_price_data()
     print(f"\nBTC ready: {len(df_btc):,} rows | {df_btc.index.min().date()} to {df_btc.index.max().date()}")
 
     print(f"\nAll cache files are in: {DATA_DIR}")
