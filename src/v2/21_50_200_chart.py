@@ -15,7 +15,7 @@ BLOCK_WINDOW = True # Set False if you want the script to continue immediately a
 
 # Optional visual tweaks (advanced)
 SHOW_GRID = True
-FIGURE_SIZE = (14, 10)              # (width, height) in inches
+FIGURE_SIZE = (14, 10) # (width, height) in inches
 
 # === Line colors and widths  ===
 CLOSE_COLOR = '#9EB3DB'
@@ -34,6 +34,11 @@ VOLUME_COLOR = '#8F8C57'
 VOLUME_ALPHA = 0.75
 VOLUME_BAR_WIDTH = 0.9
 
+# === Volume SMA ===
+VOLUME_SMA_DAYS = 15
+VOLUME_SMA_COLOR = '#263549'
+VOLUME_SMA_WIDTH = 1.5
+
 # ==================================================
 # END OF CONFIGURATION
 # ==================================================
@@ -42,22 +47,26 @@ def draw(block_window=BLOCK_WINDOW,
          log_scale=LOG_SCALE, 
          days_back=DAYS_BACK):
     """
-    Enhanced Bitcoin chart: 21 EMA vs 50 SMA with 200 SMA long-term filter + Volume subplot.
-    Now uses get_price_data_cryptocompare for data consistency with other charts (like pi_bottom_top.py).
-    All major settings (including the new color/width options) are controlled from the CONFIG section at the top.
+    Enhanced Bitcoin chart: 21 EMA vs 50 SMA with 200 SMA long-term filter + 
+    Volume subplot with configurable SMA overlay.
+    Uses get_price_data_cryptocompare for data consistency.
     """
     # === Load and prepare data ===
     data_frame = price_data.get_btc_price_data()
     
-    # === Optional recent-data filter (reliable slicing) ===
+    # === Optional recent-data filter ===
     if days_back is not None:
-        data_frame = data_frame.sort_index()           # safety
+        data_frame = data_frame.sort_index()
         data_frame = data_frame.iloc[-days_back:]
     
     # === Calculate moving averages ===
     data_frame['EMA21'] = data_frame['close'].ewm(span=21, adjust=False).mean()
     data_frame['SMA50'] = data_frame['close'].rolling(window=50).mean()
     data_frame['SMA200'] = data_frame['close'].rolling(window=200).mean()
+    
+    # === Volume SMA (optional) ===
+    if VOLUME_SMA_DAYS > 0:
+        data_frame['VOLUME_SMA'] = data_frame['volumeto'].rolling(window=VOLUME_SMA_DAYS).mean()
 
     # === Create figure with price + volume subplots ===
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=FIGURE_SIZE, 
@@ -77,7 +86,7 @@ def draw(block_window=BLOCK_WINDOW,
              label='200-Day SMA (Long-term Filter)', 
              linewidth=SMA200_WIDTH, linestyle='--', color=SMA200_COLOR)
     
-    title = 'Bitcoin Price: 21 EMA vs 50 SMA with 200 SMA Filter'
+    title = 'Bitcoin Price: 21 EMA vs 50 SMA with 200 SMA Filter + Volume SMA'
     if log_scale:
         ax1.set_yscale('log')
         title += ' (Log Scale)'
@@ -98,7 +107,15 @@ def draw(block_window=BLOCK_WINDOW,
     ax2.bar(data_frame.index, data_frame['volumeto'], 
             width=VOLUME_BAR_WIDTH, color=VOLUME_COLOR, alpha=VOLUME_ALPHA, label='USD Volume')
     
+    # Volume SMA line (if enabled)
+    if VOLUME_SMA_DAYS > 0 and 'VOLUME_SMA' in data_frame.columns:
+        ax2.plot(data_frame.index, data_frame['VOLUME_SMA'], 
+                 label=f'{VOLUME_SMA_DAYS}-Day Volume SMA', 
+                 linewidth=VOLUME_SMA_WIDTH, color=VOLUME_SMA_COLOR)
+    
     ax2.set_ylabel('Volume (USD)', fontsize=12)
+    ax2.legend(loc='upper left', fontsize=10)
+    
     if SHOW_GRID:
         ax2.grid(True, alpha=0.3)
     
@@ -121,11 +138,10 @@ def draw(block_window=BLOCK_WINDOW,
     
     plt.tight_layout()
     
-    print(f'\nDrawing BTC 21/50/200 + Volume chart '
+    print(f'\nDrawing BTC 21/50/200 + Volume + {VOLUME_SMA_DAYS}-day SMA chart '
           f'(log_scale={log_scale}, days_back={days_back})...')
     plt.show(block=block_window)
 
 
 if __name__ == '__main__':
     draw()
-
