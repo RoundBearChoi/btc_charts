@@ -10,7 +10,7 @@ import get_price_data_cryptocompare as price_data
 
 # Chart behavior
 LOG_SCALE = False
-DAYS_BACK = 360*3
+DAYS_BACK = 360*8
 BLOCK_WINDOW = True # Set False if you want the script to continue immediately after plot
 
 # Optional visual tweaks (advanced)
